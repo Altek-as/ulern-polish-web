@@ -1,0 +1,212 @@
+/* uLern Polish Web - Polish Red Theme for Mobile VR */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    background: #0a0a1a;
+    color: #fff;
+}
+
+/* Overlay (2D Polish interface) */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+
+.overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.overlay-content {
+    max-width: 800px;
+    padding: 2rem;
+    text-align: center;
+    background: rgba(26, 26, 46, 0.9);
+    border-radius: 20px;
+    border: 2px solid #FF0033;
+    box-shadow: 0 0 40px rgba(255, 0, 51, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.overlay-content h1 {
+    font-size: 3rem;
+    color: #FF0033;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 10px rgba(255, 0, 51, 0.5);
+}
+
+.overlay-content h1 i {
+    margin-right: 0.5rem;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: #aaa;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+.instruction-box {
+    background: rgba(255, 0, 51, 0.1);
+    border-left: 4px solid #FF0033;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    text-align: left;
+    border-radius: 0 10px 10px 0;
+}
+
+.instruction-box h2 {
+    color: #FF0033;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.instruction-box ol {
+    padding-left: 1.5rem;
+    color: #ddd;
+    line-height: 1.8;
+}
+
+.instruction-box li {
+    margin-bottom: 0.5rem;
+}
+
+.permission-box {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: rgba(0, 255, 0, 0.05);
+    border: 1px solid rgba(0, 255, 0, 0.3);
+    border-radius: 10px;
+}
+
+#instructionText {
+    font-size: 1.1rem;
+    color: #aaa;
+    margin-bottom: 1.5rem;
+}
+
+.start-button {
+    background: linear-gradient(135deg, #FF0033 0%, #cc0029 100%);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1.3rem;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 250px;
+    box-shadow: 0 0 20px rgba(255, 0, 51, 0.5);
+}
+
+.start-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 30px rgba(255, 0, 51, 0.8);
+}
+
+.start-button:active {
+    transform: translateY(0);
+}
+
+.button-text, .button-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.button-spinner.hidden {
+    display: none;
+}
+
+.start-button.loading .button-text {
+    display: none;
+}
+
+.start-button.loading .button-spinner {
+    display: flex;
+}
+
+.footer {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #333;
+    color: #777;
+    font-size: 0.9rem;
+}
+
+.footer i {
+    margin-right: 0.5rem;
+}
+
+/* A-Frame scene full view */
+a-scene {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+/* VR UI adjustments */
+a-text[font="roboto"] {
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Mobile VR optimizations */
+@media (max-width: 768px) {
+    .overlay-content {
+        width: 95%;
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+    
+    .overlay-content h1 {
+        font-size: 2.2rem;
+    }
+    
+    .subtitle {
+        font-size: 1rem;
+    }
+    
+    .instruction-box h2 {
+        font-size: 1.3rem;
+    }
+    
+    .start-button {
+        font-size: 1.1rem;
+        min-width: 200px;
+        padding: 0.8rem 1.5rem;
+    }
+}
+
+/* Hide A-Frame UI when overlay is visible */
+.overlay:not(.hidden) + a-scene {
+    pointer-events: none;
+    opacity: 0.3;
+    filter: blur(5px);
+}

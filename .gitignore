@@ -44,7 +44,10 @@ next-env.d.ts
 /app/
 /components/
 /lib/
-/public/
+#/public/
+!/public/index.html
+!/public/app.js
+!/public/style.css
 /tests/
 /playwright-report/
 /test-results/
