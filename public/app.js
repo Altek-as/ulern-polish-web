@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let speechRecognition = null;
     let conversationState = 'idle'; // 'idle', 'greeting', 'question', 'listening', 'processing', 'responding'
     let pendingResponse = null;
+    let lastAudioData = null;
     
     // Polish phrases for conversation
     const polishPhrases = {
@@ -41,30 +42,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     /**
-     * Call LLM API to generate Polish response based on user input
+     * Call backend API to generate Polish response and audio based on user input
      * @param {string} userInput - User's spoken text in Polish
      * @returns {Promise<string>} Promise resolving to Polish response text
      */
-    async function callLLMAPI(userInput) {
-        // Get configuration from global object or use defaults
-        const config = window.uLernConfig || {
-            llm: {
-                provider: 'openai',
-                apiKey: 'YOUR_OPENAI_API_KEY',
-                baseUrl: 'https://api.openai.com/v1',
-                model: 'gpt-3.5-turbo',
-                maxTokens: 150,
-                temperature: 0.7,
-                systemPrompt: 'Jesteś pomocnym asystentem języka polskiego. Odpowiadaj wyłącznie po polsku, używając prostego języka odpowiedniego dla początkujących. Utrzymuj odpowiedzi krótkie i zachęcające.',
-                enableFallback: true
-            },
-            app: {
-                language: 'pl-PL',
-                debug: false
-            }
-        };
-        
-        // Fallback phrases if LLM fails
+    async function callBackendAPI(userInput) {
+        // Fallback phrases if backend fails
         const fallbackPhrases = [
             'Cześć! Jak się masz?',
             'Powiedz mi, jak się nazywasz?',
@@ -75,96 +58,104 @@ document.addEventListener('DOMContentLoaded', () => {
             'Rozumiem.',
             'Świetnie ci idzie! Mów dalej.'
         ];
-        
-        // If mock mode enabled, return mock response
-        if (config.llm.mock === true) {
-            console.log('[uLern] Using mock LLM response:', config.llm.mockResponse);
-            return config.llm.mockResponse;
-        }
-        
-        // If API key is placeholder, immediately fallback
-        if (config.llm.apiKey.includes('YOUR_')) {
-            console.warn('[uLern] LLM API key not configured, using fallback phrases');
-            return fallbackPhrases[Math.floor(Math.random() * fallbackPhrases.length)];
-        }
-        
+
         try {
-            // Construct request based on provider
-            let requestBody;
-            let endpoint;
+            console.log('[uLern] Calling backend /api/chat with input:', userInput);
             
-            if (config.llm.provider === 'openai') {
-                endpoint = `${config.llm.baseUrl}/chat/completions`;
-                requestBody = {
-                    model: config.llm.model,
-                    messages: [
-                        { role: 'system', content: config.llm.systemPrompt },
-                        { role: 'user', content: userInput }
-                    ],
-                    max_tokens: config.llm.maxTokens,
-                    temperature: config.llm.temperature
-                };
-            } else {
-                // Default to OpenAI format for unknown providers
-                endpoint = `${config.llm.baseUrl}/chat/completions`;
-                requestBody = {
-                    model: config.llm.model,
-                    messages: [
-                        { role: 'system', content: config.llm.systemPrompt },
-                        { role: 'user', content: userInput }
-                    ],
-                    max_tokens: config.llm.maxTokens,
-                    temperature: config.llm.temperature
-                };
-            }
-            
-            console.log('[uLern] Calling LLM API:', config.llm.provider, endpoint);
-            
-            const response = await fetch(endpoint, {
+            const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${config.llm.apiKey}`
                 },
-                body: JSON.stringify(requestBody)
+                body: JSON.stringify({ message: userInput })
             });
-            
+
             if (!response.ok) {
-                throw new Error(`LLM API error: ${response.status} ${response.statusText}`);
+                throw new Error(`Backend API error: ${response.status} ${response.statusText}`);
             }
-            
+
             const data = await response.json();
             
-            // Extract Polish text from response based on provider format
-            let polishResponse;
-            if (config.llm.provider === 'openai') {
-                polishResponse = data.choices?.[0]?.message?.content?.trim();
+            if (!data.success) {
+                throw new Error(`Backend error: ${data.error}`);
+            }
+
+            // Extract Polish text from backend response
+            const polishText = data.llmResult?.polishText;
+            if (!polishText) {
+                throw new Error('No Polish text in backend response');
+            }
+
+            // Store audio data if available
+            if (data.ttsResult?.audioBase64) {
+                lastAudioData = {
+                    base64: data.ttsResult.audioBase64,
+                    format: data.ttsResult.audioFormat || 'audio/mpeg'
+                };
             } else {
-                // Try to extract from common response formats
-                polishResponse = data.choices?.[0]?.message?.content?.trim() ||
-                                data.response?.trim() ||
-                                data.text?.trim();
+                lastAudioData = null;
             }
-            
-            if (!polishResponse) {
-                throw new Error('No Polish response text found in LLM API response');
-            }
-            
-            console.log('[uLern] LLM response received:', polishResponse.substring(0, 100) + '...');
-            return polishResponse;
-            
+
+            // If TTS failed, we'll fallback to Web Speech API (handled in speakPolish)
+            console.log('[uLern] Backend response received:', polishText.substring(0, 100) + '...');
+            return polishText;
+
         } catch (error) {
-            console.error('[uLern] LLM API failed:', error.message);
+            console.error('[uLern] Backend API failed:', error.message);
             
             // Fallback to hardcoded phrases
-            if (config.llm.enableFallback !== false) {
-                const fallbackIndex = Math.floor(Math.random() * fallbackPhrases.length);
-                return fallbackPhrases[fallbackIndex];
-            }
-            
-            // If fallback disabled, re-throw the error
-            throw error;
+            const fallbackIndex = Math.floor(Math.random() * fallbackPhrases.length);
+            return fallbackPhrases[fallbackIndex];
         }
+    }
+
+    /**
+     * Update avatar texture based on conversation state.
+     * Maps speaking-like states (greeting/question/responding) to speaking texture.
+     * @param {string} state
+     */
+    function updateAvatarTexture(state) {
+        const textureByState = {
+            idle: 'assets/avatar-idle.png',
+            listening: 'assets/avatar-listening.png',
+            processing: 'assets/avatar-thinking.png',
+            speaking: 'assets/avatar-talking.gif'
+        };
+
+        const avatarEl = document.querySelector('#avatar') || document.getElementById('avatar');
+        if (!avatarEl) {
+            console.warn('[uLern] Avatar element not found for texture update');
+            return;
+        }
+
+        const normalizedState = ['greeting', 'question', 'responding'].includes(state)
+            ? 'speaking'
+            : state;
+
+        const requestedPath = textureByState[normalizedState] || textureByState.idle;
+        const idlePath = textureByState.idle;
+
+        const previewImage = new Image();
+        previewImage.onload = () => {
+            avatarEl.setAttribute('src', requestedPath);
+        };
+        previewImage.onerror = () => {
+            console.warn(`[uLern] Avatar texture failed to load for state "${state}": ${requestedPath}. Falling back to idle.`);
+
+            if (requestedPath === idlePath) {
+                return;
+            }
+
+            const idlePreview = new Image();
+            idlePreview.onload = () => {
+                avatarEl.setAttribute('src', idlePath);
+            };
+            idlePreview.onerror = () => {
+                console.warn(`[uLern] Avatar idle texture is also missing: ${idlePath}`);
+            };
+            idlePreview.src = idlePath;
+        };
+        previewImage.src = requestedPath;
     }
     
     /**
@@ -172,6 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function transitionToState(newState) {
         console.log('[uLern] State transition:', conversationState, '->', newState);
+        updateAvatarTexture(newState);
         conversationState = newState;
         
         switch (newState) {
@@ -269,8 +261,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // Call LLM API for intelligent response
-        callLLMAPI(transcript)
+        // Call backend API for intelligent response and audio
+        callBackendAPI(transcript)
             .then(response => {
                 pendingResponse = response;
                 transitionToState('responding');
@@ -400,16 +392,85 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string} text - Polish text to speak
      */
     function speakPolish(text, onEndCallback) {
-        // Get configuration
-        const config = window.uLernConfig || {
+        // Hardcoded configuration defaults (API keys now server-side)
+        const config = {
             app: {
                 preferExternalTTS: true
             },
             tts: {
-                apiKey: 'YOUR_ELEVENLABS_API_KEY',
+                apiKey: '',
                 enableFallback: true
             }
         };
+        
+        // If backend audio data is available, play it directly
+        if (lastAudioData && lastAudioData.base64) {
+            console.log('[uLern] Playing backend audio data');
+            
+            // Show speech indicator (same as external TTS)
+            if (speechIndicator) {
+                speechIndicator.setAttribute('visible', 'true');
+                speechIndicator.setAttribute('opacity', '0.8');
+            }
+            if (speechText) {
+                speechText.setAttribute('visible', 'true');
+                speechText.setAttribute('value', 'Mówię: ' + text);
+            }
+            
+            try {
+                // Convert base64 to blob
+                const byteCharacters = atob(lastAudioData.base64);
+                const byteNumbers = new Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray], { type: lastAudioData.format || 'audio/mpeg' });
+                const audioUrl = URL.createObjectURL(blob);
+                const audio = new Audio(audioUrl);
+                
+                audio.onended = () => {
+                    console.log('[uLern] Backend audio playback finished');
+                    // Hide speech indicator
+                    if (speechIndicator) speechIndicator.setAttribute('visible', 'false');
+                    if (speechText) speechText.setAttribute('visible', 'false');
+                    URL.revokeObjectURL(audioUrl);
+                    if (onEndCallback && typeof onEndCallback === 'function') {
+                        onEndCallback();
+                    }
+                };
+                
+                audio.onerror = (error) => {
+                    console.error('[uLern] Backend audio playback error:', error);
+                    // Hide speech indicator
+                    if (speechIndicator) speechIndicator.setAttribute('visible', 'false');
+                    if (speechText) speechText.setAttribute('visible', 'false');
+                    URL.revokeObjectURL(audioUrl);
+                    // Fallback to Web Speech API
+                    console.warn('[uLern] Falling back to Web Speech API due to audio playback error');
+                    fallbackToWebSpeech(text, onEndCallback);
+                };
+                
+                audio.play().catch(error => {
+                    console.error('[uLern] Failed to play audio:', error);
+                    // Hide speech indicator
+                    if (speechIndicator) speechIndicator.setAttribute('visible', 'false');
+                    if (speechText) speechText.setAttribute('visible', 'false');
+                    URL.revokeObjectURL(audioUrl);
+                    // Fallback to Web Speech API
+                    console.warn('[uLern] Falling back to Web Speech API');
+                    fallbackToWebSpeech(text, onEndCallback);
+                });
+                
+            } catch (error) {
+                console.error('[uLern] Error processing backend audio:', error);
+                // Fallback to Web Speech API
+                fallbackToWebSpeech(text, onEndCallback);
+            }
+            
+            lastAudioData = null; // Clear after use
+            return;
+        }
         
         // Try external TTS first if configured and preferred
         if (config.app.preferExternalTTS && !config.tts.apiKey.includes('YOUR_')) {
@@ -498,14 +559,14 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {Promise<void>} Promise that resolves when audio finishes playing
      */
     async function callExternalTTS(polishText) {
-        // Get configuration from global object or use defaults
-        const config = window.uLernConfig || {
+        // Hardcoded configuration defaults (API keys now server-side)
+        const config = {
             tts: {
                 provider: 'elevenlabs',
-                apiKey: 'YOUR_ELEVENLABS_API_KEY',
+                apiKey: '',
                 baseUrl: 'https://api.elevenlabs.io/v1',
                 voiceId: '21m00Tcm4TlvDq8ikWAM',
-                modelId: 'eleven_monolingual_v1',
+                modelId: 'eleven_multilingual_v2',
                 stability: 0.5,
                 similarityBoost: 0.75,
                 enableFallback: true,
