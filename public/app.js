@@ -43,11 +43,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     /**
-     * Call LLM API to generate Polish response based on user input
+     * Call backend API to generate Polish response based on user input
      * @param {string} userInput - User's spoken text in Polish
      * @returns {Promise<string>} Promise resolving to Polish response text
      */
-    async function callLLMAPI(userInput) {
+    async function callBackendAPI(userInput) {
         // Get configuration from global object or use defaults
         const config = window.uLernConfig || {
             llm: {
@@ -329,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // Call backend API for intelligent response and audio
-        callLLMAPI(transcript)
+        callBackendAPI(transcript)
             .then(response => {
                 pendingResponse = response;
                 transitionToState('responding');
