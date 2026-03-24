@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const speechIndicator = document.getElementById('speechIndicator');
     const micIndicator = document.getElementById('micIndicator');
     const speechText = document.getElementById('speechText');
+    const sttText = document.getElementById('sttText');
+    const llmText = document.getElementById('llmText');
     
     // --- State ---
     let isConversationActive = false;
@@ -204,6 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (statusText) {
                     statusText.setAttribute('value', 'Przetwarzanie LLM...');
                 }
+                if (sttText) sttText.setAttribute('value', '');
                 break;
                 
             case 'responding':
@@ -212,6 +215,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (statusText) {
                     statusText.setAttribute('value', 'Synteza mowy...');
                 }
+                
+                const responseText = pendingResponse || polishPhrases.responseThanks;
+                if (llmText) llmText.setAttribute('value', 'Assistant: ' + responseText);
+                
                 if (pendingResponse) {
                     speakPolish(pendingResponse, () => {
                         // After speaking, go back to listening
@@ -232,6 +239,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (speechIndicator) speechIndicator.setAttribute('visible', 'false');
                 if (speechText) speechText.setAttribute('visible', 'false');
                 if (statusText) statusText.setAttribute('value', 'Gotowy do rozmowy');
+                if (llmText) llmText.setAttribute('value', '');
+                if (sttText) sttText.setAttribute('value', '');
                 break;
         }
     }
@@ -352,6 +361,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('[uLern] Recognized:', transcript);
                 if (statusText) {
                     statusText.setAttribute('value', 'Rozpoznano: ' + transcript);
+                }
+                if (sttText) {
+                    sttText.setAttribute('value', 'User: ' + transcript);
                 }
                 // Process user input and trigger conversation state machine
                 processUserInput(transcript);
