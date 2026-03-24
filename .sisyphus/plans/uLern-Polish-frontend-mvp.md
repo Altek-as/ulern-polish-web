@@ -404,7 +404,7 @@ Max Concurrent: 6 (Wave 1)
 
   **Commit**: NO (group with Task 6)
 
-- [ ] 4. Add floating subtitle UI entity
+- [x] 4. Add floating subtitle UI entity
 
   **What to do**:
   - Locate UI panel in `public/index.html` (currently lines 64-78, `id="uiPanel"`)
@@ -882,7 +882,7 @@ Max Concurrent: 6 (Wave 1)
 
   **Commit**: NO (group with Task 11)
 
-- [ ] 10. Ensure gaze interaction preserved
+- [x] 10. Ensure gaze interaction preserved
 
   **What to do**:
   - Verify existing gaze interaction still works with new 2D avatar:
