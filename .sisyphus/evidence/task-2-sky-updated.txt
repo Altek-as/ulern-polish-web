@@ -1,0 +1,2 @@
+45:        <a-sky src="assets/bg-store.jpg" radius="100"></a-sky>
+        <a-sky src="assets/bg-store.jpg" radius="100"></a-sky>

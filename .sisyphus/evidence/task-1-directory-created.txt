@@ -1,0 +1,12 @@
+total 75
+drwxr-xr-x 1 Andrzej Szaszkiewicz 197609     0 Mar 24 00:10 .
+drwxr-xr-x 1 Andrzej Szaszkiewicz 197609     0 Mar 23 22:00 ..
+-rw-r--r-- 1 Andrzej Szaszkiewicz 197609 31926 Mar 23 17:28 app.js
+drwxr-xr-x 1 Andrzej Szaszkiewicz 197609     0 Mar 24 00:10 assets
+-rw-r--r-- 1 Andrzej Szaszkiewicz 197609   391 Mar 22 23:57 file.svg
+-rw-r--r-- 1 Andrzej Szaszkiewicz 197609  1035 Mar 22 23:57 globe.svg
+-rw-r--r-- 1 Andrzej Szaszkiewicz 197609  4719 Mar 23 14:33 index.html
+-rw-r--r-- 1 Andrzej Szaszkiewicz 197609  1375 Mar 22 23:57 next.svg
+-rw-r--r-- 1 Andrzej Szaszkiewicz 197609  3877 Mar 23 14:33 style.css
+-rw-r--r-- 1 Andrzej Szaszkiewicz 197609   128 Mar 22 23:57 vercel.svg
+-rw-r--r-- 1 Andrzej Szaszkiewicz 197609   385 Mar 22 23:57 window.svg
