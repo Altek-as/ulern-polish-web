@@ -202,6 +202,16 @@ a-text[font="roboto"] {
         min-width: 200px;
         padding: 0.8rem 1.5rem;
     }
+
+    #subtitlePanel {
+        padding: 5px;
+        background: rgba(10, 10, 26, 0.85);
+    }
+    
+    #sttText, #llmText {
+        font-size: 0.9rem;
+        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.9);
+    }
 }
 
 /* Hide A-Frame UI when overlay is visible */
@@ -209,4 +219,34 @@ a-text[font="roboto"] {
     pointer-events: none;
     opacity: 0.3;
     filter: blur(5px);
+}
+
+/* New Visual Elements - A-Frame Entities */
+#avatar {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#avatar:hover {
+    filter: drop-shadow(0 0 10px rgba(255, 0, 51, 0.8));
+}
+
+#subtitlePanel {
+    background: rgba(10, 10, 26, 0.7);
+    border-radius: 10px;
+    padding: 10px;
+    border: 1px solid rgba(255, 0, 51, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+#sttText {
+    color: #FF9900;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8), 0 0 5px rgba(255, 153, 0, 0.5);
+    font-weight: bold;
+}
+
+#llmText {
+    color: #00FF99;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8), 0 0 5px rgba(0, 255, 153, 0.5);
+    font-weight: bold;
 }
