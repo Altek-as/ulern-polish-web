@@ -118,7 +118,8 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
     openrouter: !!process.env.OPENROUTER_API_KEY,
-    elevenlabs: !!process.env.ELEVENLABS_API_KEY
+    elevenlabs: !!process.env.ELEVENLABS_API_KEY,
+    whisper: !!process.env.RUNPOD_WHISPER_API_URL
   });
 });
 
@@ -151,6 +152,48 @@ app.post('/api/tts', limiter, async (req, res) => {
     res.send(audioBuffer);
   } catch (error) {
     console.error('[uLern] /api/tts error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// STT endpoint — RunPod Whisper
+app.post('/api/stt', limiter, async (req, res) => {
+  try {
+    const { audioUrl } = req.body; // base64 encoded audio
+    const apiKey = process.env.RUNPOD_WHISPER_API_KEY;
+    const endpointUrl = process.env.RUNPOD_WHISPER_API_URL;
+
+    if (!endpointUrl) {
+      // TODO: Once RUNPOD_WHISPER_API_URL is configured, uncomment the line below
+      // and remove this fallback response
+      return res.status(503).json({ error: 'RUNPOD_WHISPER_API_URL not configured. Whisper STT deployment pending.' });
+      // In production, remove the return above and use:
+      // throw new Error('RUNPOD_WHISPER_API_URL not configured');
+    }
+
+    if (!apiKey) {
+      return res.status(503).json({ error: 'RUNPOD_WHISPER_API_KEY not configured. Whisper STT deployment pending.' });
+    }
+
+    // Call RunPod Whisper endpoint
+    const response = await fetch(`${endpointUrl}/v1/transcribe`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ audio: audioUrl })
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      throw new Error(`Whisper error ${response.status}: ${err}`);
+    }
+
+    const data = await response.json();
+    res.json({ text: data.text || '' });
+  } catch (error) {
+    console.error('[uLern] /api/stt error:', error.message);
     res.status(500).json({ error: error.message });
   }
 });

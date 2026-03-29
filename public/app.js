@@ -22,7 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- State ---
     let isConversationActive = false;
     let gazeTimer = null;
-    let speechRecognition = null;
+    let mediaRecorder = null;
+    let audioChunks = [];
     let conversationState = 'idle';
     let pendingResponse = null;
     let audioElement = null;
@@ -183,6 +184,70 @@ Zawsze odpowiadaj tylko po polsku.`;
         }
     }
 
+    // --- Base64 encoding helper ---
+    function blobToBase64(blob) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    }
+
+    // --- Audio capture via MediaRecorder (sends to /api/stt) ---
+    function startAudioCapture() {
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+            // Stop any existing recorder
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+            }
+
+            mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+            audioChunks = [];
+
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) audioChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = async () => {
+                // Close all tracks
+                stream.getTracks().forEach(track => track.stop());
+
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                const base64 = await blobToBase64(audioBlob);
+                try {
+                    const res = await fetch(`${API_BASE}/api/stt`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ audioUrl: base64 })
+                    });
+                    const data = await res.json();
+                    if (data.text) {
+                        processUserInput(data.text);
+                    } else if (data.error) {
+                        console.warn('[uLern] STT error:', data.error);
+                    }
+                } catch (e) {
+                    console.error('[uLern] STT failed:', e);
+                }
+
+                // Restart capture if conversation is still active
+                if (isConversationActive) startAudioCapture();
+            };
+
+            mediaRecorder.start();
+
+            // Stop after 5 seconds (silence detection via timeout)
+            setTimeout(() => {
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    mediaRecorder.stop();
+                }
+            }, 5000);
+        }).catch(err => {
+            console.error('[uLern] getUserMedia error:', err);
+        });
+    }
+
     // --- Avatar State ---
     // Avatar uses A-Frame geometric primitives (no texture files needed).
     // State transitions are handled visually via the state machine below.
@@ -226,8 +291,8 @@ Zawsze odpowiadaj tylko po polsku.`;
                 break;
 
             case 'listening':
-                if (speechRecognition && isConversationActive) {
-                    try { speechRecognition.start(); } catch (e) {}
+                if (isConversationActive) {
+                    startAudioCapture();
                 }
                 if (micIndicator) {
                     micIndicator.setAttribute('visible', 'true');
@@ -296,39 +361,9 @@ Zawsze odpowiadaj tylko po polsku.`;
     }
 
     // --- Speech Recognition ---
-    function initializeSpeechRecognition() {
-        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SR) return null;
-
-        const recognition = new SR();
-        recognition.lang = 'pl-PL';
-        recognition.continuous = true;
-        recognition.interimResults = true;
-
-        recognition.onresult = (event) => {
-            let transcript = '';
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                if (event.results[i].isFinal) {
-                    transcript += event.results[i][0].transcript;
-                }
-            }
-            if (transcript) processUserInput(transcript);
-        };
-
-        recognition.onerror = (event) => {
-            console.error('[uLern] SR error:', event.error);
-            if (event.error === 'no-speech') return;
-            if (micIndicator) micIndicator.setAttribute('visible', 'false');
-        };
-
-        recognition.onend = () => {
-            if (isConversationActive && speechRecognition) {
-                try { speechRecognition.start(); } catch (e) {}
-            }
-        };
-
-        return recognition;
-    }
+    // REMOVED: Browser Web Speech API (speechRecognition)
+    // Replaced with server-side RunPod Whisper STT via /api/stt
+    // See startAudioCapture() for the new audio capture flow
 
     // --- UI Helpers ---
     function setButtonLoading(isLoading, text = '') {
@@ -385,8 +420,6 @@ Zawsze odpowiadaj tylko po polsku.`;
         if (statusText) statusText.setAttribute('value', 'Rozmowa rozpoczęta!');
         if (hintText) hintText.setAttribute('value', 'Mów po polsku');
 
-        if (!speechRecognition) speechRecognition = initializeSpeechRecognition();
-
         transitionToState('greeting');
     }
 
@@ -412,7 +445,10 @@ Zawsze odpowiadaj tylko po polsku.`;
                 // End conversation
                 isConversationActive = false;
                 pendingResponse = null;
-                if (speechRecognition) { try { speechRecognition.stop(); } catch (e) {} }
+                // Stop MediaRecorder if active
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    mediaRecorder.stop();
+                }
                 if (window.speechSynthesis) window.speechSynthesis.cancel();
                 if (audioElement) { audioElement.pause(); audioElement = null; }
                 transitionToState('idle');
