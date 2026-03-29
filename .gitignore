@@ -30,8 +30,10 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# env files — NEVER commit these
+.env
+.env.local
+.env.*
 
 # vercel
 .vercel
@@ -44,14 +46,12 @@ next-env.d.ts
 /app/
 /components/
 /lib/
-#/public/
 !/public/index.html
 !/public/app.js
 !/public/style.css
 /tests/
 /playwright-report/
 /test-results/
-/ulern-polish-web-backup/
 dev-server.*
 dev.log
 server.log

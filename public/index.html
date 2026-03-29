@@ -34,32 +34,38 @@
             </div>
             
             <div class="footer">
-                <p><i class="fas fa-info-circle"></i> Aplikacja wykorzystuje Web Speech API do rozpoznawania mowy w języku polskim (pl-PL).</p>
+                <p><i class="fas fa-info-circle"></i> Wspierany przez OpenRouter (GPT-4o-mini) + ElevenLabs TTS</p>
             </div>
         </div>
     </div>
 
     <!-- A-Frame VR Scene -->
     <a-scene vr-mode-ui="enabled: true" xr-mode-ui="enabled: true" cursor="rayOrigin: mouse" raycaster="objects: .clickable">
-        <!-- Sky -->
-        <a-sky src="assets/bg-store.jpg" radius="100"></a-sky>
+        <!-- Sky (gradient background using A-Frame primitives) -->
+        <a-sky color="#1a1a2e"></a-sky>
         
         <!-- Ground -->
-        <a-circle position="0 0 0" rotation="-90 0 0" radius="10" color="#1a1a2e" class="ground"></a-circle>
+        <a-circle position="0 0 0" rotation="-90 0 0" radius="10" color="#16213e"></a-circle>
         
-        <!-- Avatar (Central) -->
-        <a-plane id="avatar" class="clickable"
-                 position="0 1.6 -3"
-                 width="1" height="2"
-                 src="assets/avatar-idle.png"
-                 transparent="true"
-                 side="double">
-        </a-plane>
+        <!-- Avatar (geometric - no external images needed) -->
+        <a-entity id="avatar" class="clickable" position="0 1.6 -3">
+            <!-- Head -->
+            <a-sphere radius="0.4" position="0 0.6 0" color="#4a90e2"></a-sphere>
+            <!-- Body -->
+            <a-cylinder radius="0.25" height="1" position="0 -0.2 0" color="#2d5a87"></a-cylinder>
+            <!-- Eyes -->
+            <a-sphere radius="0.08" position="-0.12 0.65 0.32" color="white"></a-sphere>
+            <a-sphere radius="0.08" position="0.12 0.65 0.32" color="white"></a-sphere>
+            <a-sphere radius="0.04" position="-0.12 0.65 0.38" color="#1a1a2e"></a-sphere>
+            <a-sphere radius="0.04" position="0.12 0.65 0.38" color="#1a1a2e"></a-sphere>
+            <!-- Mouth -->
+            <a-box width="0.15" height="0.03" depth="0.02" position="0 0.48 0.35" color="#ff6b6b"></a-box>
+        </a-entity>
         
         <!-- Subtitle Panel -->
         <a-entity id="subtitlePanel" position="0 1 -2.5" rotation="-15 0 0" visible="true">
-            <a-text id="sttText" value="User: " color="#FF9900" width="2" position="0 0.2 0.01"></a-text>
-            <a-text id="llmText" value="Assistant: " color="#00FF99" width="2" position="0 -0.2 0.01"></a-text>
+            <a-text id="sttText" value="" color="#FF9900" width="2" position="0 0.2 0.01"></a-text>
+            <a-text id="llmText" value="" color="#00FF99" width="2" position="0 -0.2 0.01"></a-text>
         </a-entity>
         
         <!-- VR UI Panel -->
@@ -67,15 +73,15 @@
             <a-plane width="2" height="1" color="#1a1a2e" opacity="0.9"></a-plane>
             <a-text id="statusText" value="Witaj! Patrz na awatar, aby rozpocząć rozmowę." 
                     position="0 0.3 0.01" align="center" width="1.8" color="#FF0033" font="roboto"></a-text>
-            <a-text id="hintText" value="Czas patrzenia: 0s" 
+            <a-text id="hintText" value="" 
                     position="0 -0.1 0.01" align="center" width="1.8" color="#FFFFFF" font="roboto"></a-text>
             <a-ring id="speechIndicator" radius-inner="0.15" radius-outer="0.2" position="0.7 -0.3 0.01" 
                     color="#FF0033" opacity="0" visible="false"></a-ring>
-            <a-text value="Mówię..." position="0.7 -0.5 0.01" align="center" width="0.5" color="#FF0033" 
+            <a-text value="" position="0.7 -0.5 0.01" align="center" width="0.5" color="#FF0033" 
                     font="roboto" visible="false" id="speechText"></a-text>
             <a-ring id="micIndicator" radius-inner="0.1" radius-outer="0.15" position="-0.7 -0.3 0.01" 
                     color="#00FF00" opacity="0" visible="false"></a-ring>
-            <a-text value="Mikrofon" position="-0.7 -0.5 0.01" align="center" width="0.5" color="#00FF00" 
+            <a-text value="" position="-0.7 -0.5 0.01" align="center" width="0.5" color="#00FF00" 
                     font="roboto" visible="false" id="micText"></a-text>
         </a-entity>
         
