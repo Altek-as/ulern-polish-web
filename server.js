@@ -8,6 +8,8 @@ const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const bcrypt = require('bcryptjs');
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -27,22 +29,25 @@ const limiter = rateLimit({
 });
 
 // --- Helper: Call OpenRouter GPT-4o-mini ---
-async function callOpenRouter(messages) {
+const SYSTEM_PROMPT = `Jesteś przyjaznym polskim nauczycielem języka. Pomagasz użytkownikom ćwiczyć rozmowną polszczyznę.
+Utrzymuj odpowiedzi KRÓTKIE (1-3 zdania maksymalnie) i po polsku.
+Używaj prostego słownictwa odpowiedniego dla początkujących.
+Bądź zachęcający i cierpliwy.
+Jeśli użytkownik popełnia błędy gramatyczne, delikatnie je koryguj w wspierający sposób.
+Zawsze odpowiadaj tylko po polsku.`;
+
+async function callOpenRouter(messages, lessonContext) {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) throw new Error('OPENROUTER_API_KEY not configured');
 
   // Inject system prompt if not present
   const hasSystem = messages.some(m => m.role === 'system');
+  let systemContent = SYSTEM_PROMPT;
+  if (lessonContext && lessonContext.title) {
+    systemContent = `${SYSTEM_PROMPT}\n\n[Lekcja: ${lessonContext.title}]`;
+  }
   const fullMessages = hasSystem ? messages : [
-    {
-      role: 'system',
-      content: `Jesteś przyjaznym polskim nauczycielem języka. Pomagasz użytkownikom ćwiczyć rozmowną polszczyznę.
-Utrzymuj odpowiedzi KRÓTKIE (1-3 zdania maksymalnie) i po polsku.
-Używaj prostego słownictwa odpowiedniego dla początkujących.
-Bądź zachęcający i cierpliwy.
-Jeśli użytkownik popełnia błędy gramatyczne, delikatnie je koryguj w wspierający sposób.
-Zawsze odpowiadaj tylko po polsku.`
-    },
+    { role: 'system', content: systemContent },
     ...messages
   ];
 
@@ -120,12 +125,12 @@ app.get('/api/health', (req, res) => {
 // Chat endpoint — OpenRouter GPT-4o-mini
 app.post('/api/chat', limiter, async (req, res) => {
   try {
-    const { messages } = req.body;
+    const { messages, lessonContext } = req.body;
     if (!messages || !Array.isArray(messages)) {
       return res.status(400).json({ error: 'messages array required' });
     }
 
-    const reply = await callOpenRouter(messages);
+    const reply = await callOpenRouter(messages, lessonContext);
     res.json({ reply });
   } catch (error) {
     console.error('[uLern] /api/chat error:', error.message);
@@ -147,6 +152,67 @@ app.post('/api/tts', limiter, async (req, res) => {
   } catch (error) {
     console.error('[uLern] /api/tts error:', error.message);
     res.status(500).json({ error: error.message });
+  }
+});
+
+// --- Auth helpers ---
+const USERS_FILE = path.join(process.cwd(), 'users.json');
+
+function readUsers() {
+  try {
+    if (!fs.existsSync(USERS_FILE)) return [];
+    return JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+  } catch {
+    return [];
+  }
+}
+
+function writeUsers(users) {
+  fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+}
+
+// POST /api/auth/register
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { email, password, name } = req.body;
+    if (!email || !password || !name) {
+      return res.status(400).json({ success: false, error: 'Missing required fields' });
+    }
+    const users = readUsers();
+    if (users.find(u => u.email === email)) {
+      return res.status(409).json({ success: false, error: 'Email already registered' });
+    }
+    const hashed = await bcrypt.hash(password, 10);
+    const user = { id: `user_${Date.now()}`, email, name, passwordHash: hashed, createdAt: new Date().toISOString() };
+    users.push(user);
+    writeUsers(users);
+    res.json({ success: true, user: { id: user.id, email: user.email, name: user.name } });
+  } catch (error) {
+    console.error('[uLern] /api/auth/register error:', error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/auth/login
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ success: false, error: 'Missing email or password' });
+    }
+    const users = readUsers();
+    const user = users.find(u => u.email === email);
+    if (!user) {
+      return res.status(401).json({ success: false, error: 'Invalid credentials' });
+    }
+    const valid = await bcrypt.compare(password, user.passwordHash);
+    if (!valid) {
+      return res.status(401).json({ success: false, error: 'Invalid credentials' });
+    }
+    res.json({ success: true, user: { id: user.id, email: user.email, name: user.name } });
+  } catch (error) {
+    console.error('[uLern] /api/auth/login error:', error.message);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 

@@ -1,7 +1,7 @@
 # uLern-Polish — Deep Analysis & Next Steps
 
 ## Project Status
-**Two separate apps in one repo — neither fully connected to the other.**
+**Two apps now unified — Next.js frontend connects to Express backend; auth is real.**
 
 ---
 
@@ -9,26 +9,29 @@
 
 ```
 uLern-Polish-Web/
-├── server.js              # Express backend (port 5000) — AI pipeline
-│   ├── /api/chat          → OpenRouter GPT-4o-mini
+├── server.js              # Express backend (port 5000) — AI pipeline + real auth
+│   ├── /api/chat          → OpenRouter GPT-4o-mini (supports lessonContext)
 │   ├── /api/tts           → ElevenLabs TTS
+│   ├── /api/auth/login    → bcryptjs auth (users.json)
+│   ├── /api/auth/register → bcryptjs auth (users.json)
 │   └── serves public/     → WebXR VR experience
 │
 ├── public/
 │   ├── index.html         # VR entry point (A-Frame WebXR)
-│   ├── app.js             # VR app logic (state machine)
+│   ├── app.js             # VR app logic (reads sessionStorage for lessonContext)
 │   └── style.css
 │
 └── app/                   # Next.js web app (port 3000)
-    ├── /lessons           # Lesson browser
+    ├── /lessons           # Lesson browser + AI status badge
+    ├── /lessons/[id]      # Individual lesson page
     ├── /exercises         # Quiz exercises
-    ├── /login, /register  # Auth pages (mock only)
+    ├── /login, /register  # Auth pages (connected to Express API)
     ├── /progress          # Progress tracking
     ├── /level-test        # Placement test
     └── /profile           # User profile
 ```
 
-**These two apps are completely decoupled.** The Next.js app has no connection to the Express AI backend.
+**Both apps are now connected via API proxy rewrites in Next.js config + direct calls from VR frontend.**
 
 ---
 
@@ -105,20 +108,20 @@ Either create the missing assets, or remove the texture swapper and keep the geo
 ## 4. What Needs to Be Built
 
 ### Phase 1: Fix Path & Dev Experience
-- [ ] Replace `__dirname` → `process.cwd()` in `server.js`
-- [ ] Fix `.gitignore` to definitively exclude `.env` (currently `.env*` pattern may be overridden by later rules)
-- [ ] Add `start:dev` script that runs both Next.js + Express concurrently
-- [ ] Create avatar asset images OR remove `updateAvatarTexture()` dead code
+- [x] Replace `__dirname` → `process.cwd()` in `server.js`
+- [x] Fix `.gitignore` to definitively exclude `.env` (currently `.env*` pattern may be overridden by later rules)
+- [x] Add `start:dev` script that runs both Next.js + Express concurrently
+- [x] Create avatar asset images OR remove `updateAvatarTexture()` dead code (Option B: geometric A-Frame avatar confirmed as official)
 
 ### Phase 2: Unite the Two Apps
-- [ ] Next.js app should **call the Express backend** (`http://localhost:5000/api/chat`) for AI features
-- [ ] Add API proxy in Next.js config so `/api/chat` → Express (avoids CORS in production)
-- [ ] Wire up login/register to a real auth endpoint on Express (or use NextAuth.js)
-- [ ] Connect lesson selection → triggers that lesson's topic in the VR conversation engine
+- [x] Next.js app should **call the Express backend** (`http://localhost:5000/api/chat`) for AI features
+- [x] Add API proxy in Next.js config so `/api/chat` → Express (avoids CORS in production)
+- [x] Wire up login/register to a real auth endpoint on Express (bcryptjs + users.json)
+- [x] Connect lesson selection → triggers that lesson's topic in the VR conversation engine
 
 ### Phase 3: Real Lesson Content
 - [ ] Replace hardcoded `callChatAPI('Zadaj pytanie...')` prompts with structured lesson context
-- [ ] Each lesson should inject a lesson-specific system prompt into the conversation history
+- [x] Each lesson should inject a lesson-specific system prompt into the conversation history
 - [ ] Add lesson completion tracking (mark lesson done after N successful exchanges)
 
 ### Phase 4: Polish & Polish (language)
@@ -142,11 +145,11 @@ Since the project path is shared (OneDrive/SharePoint?), the safest approach:
 
 ## 6. Quick Wins
 
-1. Delete `ulern-polish-web-backup/` folder — saves 40+ MB, removes confusion
-2. Remove dead `updateAvatarTexture()` code from `app.js` — it's broken and unused
-3. Fix `lang="pl"` in `app/layout.tsx`
-4. Add `apiProxy` to `next.config.ts` so Next.js proxies `/api/*` to Express in dev
-5. Add a "Launch VR Experience" button in Next.js app that opens the Express-served WebXR page
+1. ~~Delete `ulern-polish-web-backup/` folder~~ — DONE (already deleted before this session)
+2. ~~Remove dead `updateAvatarTexture()` code from `app.js`~~ — DONE (replaced with no-op `updateAvatarState()`)
+3. ~~Fix `lang="pl"` in `app/layout.tsx`~~ — DONE (was already fixed before this session)
+4. ~~Add `apiProxy` to `next.config.ts`~~ — DONE (already present before this session)
+5. ~~Add a "Launch VR Experience" button in Next.js app~~ — DONE (added in hero section + AI status badge in header)
 
 ---
 

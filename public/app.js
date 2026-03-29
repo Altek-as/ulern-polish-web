@@ -63,10 +63,17 @@ Zawsze odpowiadaj tylko po polsku.`;
     async function callChatAPI(userMessage) {
         conversationHistory.push({ role: 'user', content: userMessage });
 
+        // Read lesson context from sessionStorage if set
+        let lessonContext = null;
+        try {
+            const stored = sessionStorage.getItem('ulern_selected_lesson');
+            if (stored) lessonContext = JSON.parse(stored);
+        } catch (e) {}
+
         const response = await fetch(`${API_BASE}/api/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ messages: conversationHistory })
+            body: JSON.stringify({ messages: conversationHistory, lessonContext })
         });
 
         if (!response.ok) {

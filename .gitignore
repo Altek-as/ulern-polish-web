@@ -64,3 +64,4 @@ package-lock.json
 package.json.backup
 playwright.config.ts
 README.md
+.sisyphus/
