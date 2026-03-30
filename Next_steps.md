@@ -1,7 +1,7 @@
 # uLern-Polish — Deep Analysis & Next Steps
 
 ## Project Status
-**Two apps now unified — Next.js frontend connects to Express backend; auth is real.**
+**Two apps now unified — Next.js frontend connects to Express backend; Supabase auth ready (awaiting project setup).**
 
 ---
 
@@ -9,11 +9,11 @@
 
 ```
 uLern-Polish-Web/
-├── server.js              # Express backend (port 5000) — AI pipeline + real auth
+├── server.js              # Express backend (port 5000) — AI pipeline + Supabase auth
 │   ├── /api/chat          → OpenRouter GPT-4o-mini (supports lessonContext)
 │   ├── /api/tts           → ElevenLabs TTS
-│   ├── /api/auth/login    → bcryptjs auth (users.json)
-│   ├── /api/auth/register → bcryptjs auth (users.json)
+│   ├── /api/auth/login    → Supabase Auth
+│   ├── /api/auth/register → Supabase Auth
 │   └── serves public/     → WebXR VR experience
 │
 ├── public/
@@ -125,9 +125,9 @@ Either create the missing assets, or remove the texture swapper and keep the geo
 - [ ] Add lesson completion tracking (mark lesson done after N successful exchanges)
 
 ### Phase 4: Polish & Polish (language)
+- [x] ~~Add user accounts + DB (Supabase)~~ — **Done** (code ready, awaiting Supabase project setup)
 - [ ] Replace browser Web Speech API with a real STT API (e.g., RunPod Whisper, Speechmatics, or Deepgram)
-- [ ] Add user accounts + DB (Supabase or Railway + Postgres)
-- [ ] Progress sync across devices
+- [ ] Progress sync across devices (Supabase Postgres)
 - [ ] ComfyUI integration for generating lesson visuals (already deployed on RunPod)
 
 ---

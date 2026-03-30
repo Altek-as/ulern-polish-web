@@ -8,8 +8,13 @@ const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
-const bcrypt = require('bcryptjs');
-const fs = require('fs');
+const { createClient } = require('@supabase/supabase-js');
+
+// Supabase server-side client (uses service role key — never expose to client)
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -119,7 +124,8 @@ app.get('/api/health', (req, res) => {
     status: 'ok',
     openrouter: !!process.env.OPENROUTER_API_KEY,
     elevenlabs: !!process.env.ELEVENLABS_API_KEY,
-    whisper: !!process.env.RUNPOD_WHISPER_API_URL
+    whisper: !!process.env.RUNPOD_WHISPER_API_URL,
+    supabase: !!process.env.SUPABASE_URL
   });
 });
 
@@ -198,64 +204,51 @@ app.post('/api/stt', limiter, async (req, res) => {
   }
 });
 
-// --- Auth helpers ---
-const USERS_FILE = path.join(process.cwd(), 'users.json');
-
-function readUsers() {
-  try {
-    if (!fs.existsSync(USERS_FILE)) return [];
-    return JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
-  } catch {
-    return [];
-  }
-}
-
-function writeUsers(users) {
-  fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
-}
-
-// POST /api/auth/register
-app.post('/api/auth/register', async (req, res) => {
+// POST /api/auth/register — Supabase Auth
+app.post('/api/auth/register', limiter, async (req, res) => {
   try {
     const { email, password, name } = req.body;
     if (!email || !password || !name) {
       return res.status(400).json({ success: false, error: 'Missing required fields' });
     }
-    const users = readUsers();
-    if (users.find(u => u.email === email)) {
-      return res.status(409).json({ success: false, error: 'Email already registered' });
-    }
-    const hashed = await bcrypt.hash(password, 10);
-    const user = { id: `user_${Date.now()}`, email, name, passwordHash: hashed, createdAt: new Date().toISOString() };
-    users.push(user);
-    writeUsers(users);
-    res.json({ success: true, user: { id: user.id, email: user.email, name: user.name } });
+
+    const { data, error } = await supabase.auth.admin.createUser({
+      email,
+      password,
+      user_metadata: { name }
+    });
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      user: { id: data.user.id, email: data.user.email, name: data.user.user_metadata.name }
+    });
   } catch (error) {
     console.error('[uLern] /api/auth/register error:', error.message);
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
-// POST /api/auth/login
-app.post('/api/auth/login', async (req, res) => {
+// POST /api/auth/login — Supabase Auth
+app.post('/api/auth/login', limiter, async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json({ success: false, error: 'Missing email or password' });
     }
-    const users = readUsers();
-    const user = users.find(u => u.email === email);
-    if (!user) {
-      return res.status(401).json({ success: false, error: 'Invalid credentials' });
-    }
-    const valid = await bcrypt.compare(password, user.passwordHash);
-    if (!valid) {
-      return res.status(401).json({ success: false, error: 'Invalid credentials' });
-    }
-    res.json({ success: true, user: { id: user.id, email: user.email, name: user.name } });
+
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      user: { id: data.user.id, email: data.user.email, name: data.user.user_metadata.name }
+    });
   } catch (error) {
     console.error('[uLern] /api/auth/login error:', error.message);
-    res.status(500).json({ success: false, error: error.message });
+    res.status(401).json({ success: false, error: 'Invalid credentials' });
   }
 });
 
@@ -272,4 +265,5 @@ app.listen(PORT, () => {
   console.log(`[uLern] Server running on http://localhost:${PORT}`);
   console.log(`[uLern] OpenRouter: ${process.env.OPENROUTER_API_KEY ? 'configured' : 'MISSING'}`);
   console.log(`[uLern] ElevenLabs: ${process.env.ELEVENLABS_API_KEY ? 'configured' : 'MISSING'}`);
+  console.log(`[uLern] Supabase: ${process.env.SUPABASE_URL ? 'configured' : 'MISSING'}`);
 });

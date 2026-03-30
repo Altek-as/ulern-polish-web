@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { AIStatusBadge } from "@/components/AIStatusBadge";
+import { AuthProvider } from "@/app/components/AuthProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -34,6 +35,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-gray-50 dark:bg-gray-900">
         <ThemeProvider>
+          <AuthProvider>
           {/* Header */}
         <header className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
           <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-8">
@@ -145,6 +147,7 @@ export default function RootLayout({
             </div>
           </div>
         </footer>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

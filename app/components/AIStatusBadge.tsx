@@ -6,6 +6,7 @@ interface HealthStatus {
   openrouter: boolean;
   elevenlabs: boolean;
   whisper: boolean;
+  supabase: boolean;
 }
 
 export function AIStatusBadge() {
@@ -20,7 +21,8 @@ export function AIStatusBadge() {
           setHealth({
             openrouter: !!data.openrouter,
             elevenlabs: !!data.elevenlabs,
-            whisper: !!data.whisper
+            whisper: !!data.whisper,
+            supabase: !!data.supabase
           });
         } else {
           setHealth(null);
@@ -44,7 +46,7 @@ export function AIStatusBadge() {
     );
   }
 
-  const allOnline = health.openrouter && health.elevenlabs && health.whisper;
+  const allOnline = health.openrouter && health.elevenlabs && health.whisper && health.supabase;
   const anyOnline = health.openrouter || health.elevenlabs || health.whisper;
 
   return (
@@ -72,6 +74,14 @@ export function AIStatusBadge() {
           }`}
         />
         <span className="text-gray-600 dark:text-gray-400">STT</span>
+      </div>
+      <div className="flex items-center gap-1" title="Supabase (Auth + DB)">
+        <span
+          className={`inline-block w-2 h-2 rounded-full ${
+            health.supabase ? "bg-green-500" : "bg-red-500"
+          }`}
+        />
+        <span className="text-gray-600 dark:text-gray-400">DB</span>
       </div>
       {allOnline && (
         <span className="text-green-600 dark:text-green-400 ml-1">✓</span>

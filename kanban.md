@@ -16,7 +16,7 @@
 
 ## 🚧 In Progress
 
-*(empty — nothing actively being worked)*
+- [x] Replace `users.json` + bcryptjs auth with Supabase Auth (code complete, awaiting Supabase project setup)
 
 ---
 

@@ -1,77 +1,72 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
+import { supabase } from '@/lib/supabase'
 
 export type User = {
-  id: string;
-  email: string;
-  name: string;
-  avatar?: string;
-  createdAt: string;
-};
+  id: string
+  email: string
+  name: string
+}
 
 export type AuthState = {
-  user: User | null;
-  isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  register: (email: string, password: string, name: string) => Promise<{ success: boolean; error?: string }>;
-  logout: () => void;
-  updateProfile: (updates: Partial<User>) => void;
-};
-
-const API_BASE = typeof window !== 'undefined' ? `http://localhost:5000` : '';
+  user: User | null
+  isAuthenticated: boolean
+  isLoading: boolean
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
+  register: (email: string, password: string, name: string) => Promise<{ success: boolean; error?: string }>
+  logout: () => Promise<void>
+}
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
       isAuthenticated: false,
+      isLoading: false,
 
       login: async (email, password) => {
-        try {
-          const res = await fetch(`${API_BASE}/api/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
-          });
-          const data = await res.json();
-          if (data.success) {
-            set({ user: data.user, isAuthenticated: true });
-            return { success: true };
-          } else {
-            return { success: false, error: data.error || 'Login failed' };
-          }
-        } catch (err) {
-          return { success: false, error: 'Network error — is the server running?' };
-        }
+        set({ isLoading: true })
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+        set({ isLoading: false })
+
+        if (error) return { success: false, error: error.message }
+
+        set({
+          user: {
+            id: data.user.id,
+            email: data.user.email,
+            name: data.user.user_metadata?.name || email.split('@')[0]
+          },
+          isAuthenticated: true
+        })
+        return { success: true }
       },
 
       register: async (email, password, name) => {
-        try {
-          const res = await fetch(`${API_BASE}/api/auth/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password, name }),
-          });
-          const data = await res.json();
-          if (data.success) {
-            set({ user: data.user, isAuthenticated: true });
-            return { success: true };
-          } else {
-            return { success: false, error: data.error || 'Registration failed' };
-          }
-        } catch (err) {
-          return { success: false, error: 'Network error — is the server running?' };
-        }
+        set({ isLoading: true })
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { data: { name } }
+        })
+        set({ isLoading: false })
+
+        if (error) return { success: false, error: error.message }
+
+        set({
+          user: {
+            id: data.user.id,
+            email: data.user.email,
+            name
+          },
+          isAuthenticated: true
+        })
+        return { success: true }
       },
 
-      logout: () => {
-        set({ user: null, isAuthenticated: false });
-      },
-
-      updateProfile: (updates) => {
-        set((state) => ({
-          user: state.user ? { ...state.user, ...updates } : null
-        }));
+      logout: async () => {
+        await supabase.auth.signOut()
+        set({ user: null, isAuthenticated: false })
       },
     }),
     {
@@ -79,4 +74,4 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }),
     }
   )
-);
+)
