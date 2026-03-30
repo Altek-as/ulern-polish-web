@@ -1,4 +1,14 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# ---------------------------------------------------
+# KEEP CONFIG FILES TRACKED: package.json, tsconfig.json,
+# next.config.ts, eslint.config.mjs, postcss.config.mjs
+# These are required for `npm ci` and the project to build.
+# ---------------------------------------------------
+
+# env files — NEVER commit these (must be FIRST to ensure they override everything)
+.env
+.env.local
+.env.*
 
 # dependencies
 /node_modules
@@ -30,11 +40,6 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files — NEVER commit these
-.env
-.env.local
-.env.*
-
 # vercel
 .vercel
 
@@ -42,25 +47,17 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# VR project - excluded Next.js source files
-/app/
-/components/
-/lib/
-!/public/index.html
-!/public/app.js
-!/public/style.css
+# VR public assets (minimal — WebXR entry point)
+# NOTE: root-level public assets ARE tracked (not gitignored)
+/public/index.html
+/public/app.js
+/public/style.css
 /tests/
 /playwright-report/
 /test-results/
 dev-server.*
 dev.log
 server.log
-next.config.ts
-tsconfig.json
-eslint.config.mjs
-postcss.config.mjs
-package.json
-package-lock.json
 package.json.backup
 playwright.config.ts
 README.md
