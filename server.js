@@ -9,6 +9,12 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
+const Stripe = require('stripe');
+
+// Initialize Stripe (uses STRIPE_SECRET_KEY from .env)
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
+  apiVersion: '2025-02-24.acacia',
+});
 
 // Supabase server-side client (uses service role key — never expose to client)
 const supabase = createClient(
@@ -49,7 +55,10 @@ async function callOpenRouter(messages, lessonContext) {
   const hasSystem = messages.some(m => m.role === 'system');
   let systemContent = SYSTEM_PROMPT;
   if (lessonContext && lessonContext.title) {
-    systemContent = `${SYSTEM_PROMPT}\n\n[Lekcja: ${lessonContext.title}]`;
+    const ctxParts = [`Lekcja: ${lessonContext.title}`];
+    if (lessonContext.description) ctxParts.push(`Temat: ${lessonContext.description}`);
+    if (lessonContext.difficulty) ctxParts.push(`Poziom: ${lessonContext.difficulty}`);
+    systemContent = `${SYSTEM_PROMPT}\n\n[Kontekst — ${ctxParts.join(' | ')}]`;
   }
   const fullMessages = hasSystem ? messages : [
     { role: 'system', content: systemContent },
@@ -230,6 +239,39 @@ app.post('/api/auth/register', limiter, async (req, res) => {
   }
 });
 
+// POST /api/generate-lesson-visual — ComfyUI RunPod lesson visuals
+const { LESSON_THEMES } = require('./lib/lesson-themes.js');
+const { submitComfyUIJob, pollComfyUIJob } = require('./lib/comfyui-client.js');
+
+app.post('/api/generate-lesson-visual', limiter, async (req, res) => {
+  try {
+    const { lessonId, type } = req.body; // type: 'scene' | 'avatar' | 'both'
+    if (!lessonId) return res.status(400).json({ error: 'lessonId required' });
+
+    const validTypes = ['scene', 'avatar', 'both'];
+    const visualType = validTypes.includes(type) ? type : 'both';
+
+    const result = await generateLessonVisualCJS(Number(lessonId), visualType);
+    res.json({ success: true, lessonId, ...result });
+  } catch (error) {
+    console.error('[uLern] /api/generate-lesson-visual error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/lesson-theme/:id — get theme metadata for a lesson
+app.get('/api/lesson-theme/:id', (req, res) => {
+  const theme = LESSON_THEMES[Number(req.params.id)];
+  if (!theme) return res.status(404).json({ error: 'Lesson theme not found' });
+  res.json({ lessonId: Number(req.params.id), ...theme });
+});
+
+// CJS wrapper — calls the ESM comfyui-client via dynamic import
+async function generateLessonVisualCJS(lessonId, type) {
+  const { generateLessonVisual } = await import('./lib/comfyui-client.js');
+  return generateLessonVisual(lessonId, type);
+}
+
 // POST /api/auth/login — Supabase Auth
 app.post('/api/auth/login', limiter, async (req, res) => {
   try {
@@ -250,6 +292,105 @@ app.post('/api/auth/login', limiter, async (req, res) => {
     console.error('[uLern] /api/auth/login error:', error.message);
     res.status(401).json({ success: false, error: 'Invalid credentials' });
   }
+});
+
+// --- Stripe Webhook (MUST be before express.json() — needs raw body) ---
+// POST /api/webhook — Stripe webhook handler
+app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  let event;
+
+  try {
+    if (webhookSecret) {
+      event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+    } else {
+      // No secret configured — parse the body directly (dev only)
+      event = JSON.parse(req.body);
+      console.warn('[Stripe] Webhook secret not set — skipping signature verification (dev mode only)');
+    }
+  } catch (err) {
+    console.error('[Stripe] Webhook signature verification failed:', err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // Handle events
+  switch (event.type) {
+    case 'checkout.session.completed': {
+      const session = event.data.object;
+      console.log('[Stripe] Checkout completed:', session.id);
+      // TODO: Grant premium access to user (update Supabase / user record)
+      // const customerId = session.customer;
+      // const userId = session.metadata?.userId;
+      break;
+    }
+    case 'payment_intent.succeeded': {
+      const paymentIntent = event.data.object;
+      console.log('[Stripe] Payment succeeded:', paymentIntent.id);
+      break;
+    }
+    case 'payment_intent.payment_failed': {
+      const paymentIntent = event.data.object;
+      console.log('[Stripe] Payment failed:', paymentIntent.id);
+      break;
+    }
+    case 'customer.subscription.deleted': {
+      const subscription = event.data.object;
+      console.log('[Stripe] Subscription cancelled:', subscription.id);
+      // TODO: Revoke premium access
+      break;
+    }
+    default:
+      console.log(`[Stripe] Unhandled event type: ${event.type}`);
+  }
+
+  res.json({ received: true });
+});
+
+// POST /api/create-checkout-session — Create a Stripe Checkout session
+app.post('/api/create-checkout-session', limiter, async (req, res) => {
+  try {
+    const { priceId, userId, userEmail } = req.body;
+
+    if (!priceId) {
+      return res.status(400).json({ error: 'priceId is required' });
+    }
+
+    const origin = req.headers.origin || 'http://localhost:3000';
+
+    const sessionParams = {
+      mode: 'subscription',
+      payment_method_types: ['card'],
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: `${origin}/checkout-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/checkout-cancel`,
+      metadata: {},
+    };
+
+    // Attach user ID and email if provided
+    if (userId) sessionParams.metadata.userId = userId;
+    if (userEmail) sessionParams.metadata.userEmail = userEmail;
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
+
+    res.json({ url: session.url, sessionId: session.id });
+  } catch (error) {
+    console.error('[Stripe] /api/create-checkout-session error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/subscription-status — Stub: return mock subscription data
+app.get('/api/subscription-status', limiter, async (req, res) => {
+  // TODO: Replace with real Supabase lookup once user auth is integrated
+  // const userId = req.headers['x-user-id'];
+  res.json({
+    subscription: 'free',
+    plan: 'Free',
+    expiresAt: null,
+    message: 'Stub — integrate with Supabase user records once auth is wired up',
+  });
 });
 
 // --- Serve static files from public/ ---

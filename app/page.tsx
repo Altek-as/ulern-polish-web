@@ -1,7 +1,31 @@
+"use client";
+
 import Link from "next/link";
-import { BookOpen, Brain, TrendingUp, Users, BotMessageSquare } from "lucide-react";
+import { BookOpen, Brain, TrendingUp, Users, BotMessageSquare, ArrowRight, Zap } from "lucide-react";
+import { useProgressStore } from "@/lib/store/progress";
+import { lessons } from "@/lib/data/lessons";
+import { useMemo } from "react";
+
+const MASTERY_THRESHOLD = 3;
 
 export default function Home() {
+  const { vocabularyProgress } = useProgressStore();
+
+  const needsPracticeCount = useMemo(() => {
+    let count = 0;
+    lessons.forEach((lesson) => {
+      lesson.vocabulary.forEach((word) => {
+        const vp = vocabularyProgress[word.polish];
+        const correct = vp?.correctAttempts || 0;
+        const total = vp?.totalAttempts || 0;
+        const accuracy = total > 0 ? correct / total : 0;
+        const effectiveMastery = total >= 3 && accuracy >= 0.7 ? 3 : total;
+        if (effectiveMastery < MASTERY_THRESHOLD) count++;
+      });
+    });
+    return count;
+  }, [vocabularyProgress]);
+
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -40,6 +64,37 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Quick Review Widget */}
+      {needsPracticeCount > 0 && (
+        <section className="py-8 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border-y border-yellow-200 dark:border-yellow-800">
+          <div className="container mx-auto px-4 md:px-8">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-gray-800 border border-yellow-200 dark:border-yellow-700 rounded-xl p-6 shadow-sm">
+              <div className="flex items-center gap-4">
+                <div className="bg-yellow-100 dark:bg-yellow-900/40 w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Zap className="h-6 w-6 text-yellow-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    Słowa wymagające powtórki
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">
+                    Masz <strong className="text-yellow-700 dark:text-yellow-400">{needsPracticeCount}</strong> {needsPracticeCount === 1 ? "słowo" : needsPracticeCount < 5 ? "słowa" : "słów"}, które wymagają praktyki.
+                    Ćwicz je, zanim zapomnisz!
+                  </p>
+                </div>
+              </div>
+              <Link
+                href="/practice"
+                className="inline-flex items-center bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors flex-shrink-0"
+              >
+                Zacznij powtórkę
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Features Section */}
        <section className="py-16 bg-white dark:bg-gray-900">

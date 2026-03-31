@@ -6,6 +6,8 @@ export type Lesson = {
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   completed: boolean;
   started: boolean;
+  /** Maps to a ComfyUI lesson theme in lib/lesson-themes.js */
+  visualTheme?: string;
   sections: LessonSection[];
   vocabulary: VocabularyWord[];
   exercises: Exercise[];
@@ -44,6 +46,7 @@ export const lessons: Lesson[] = [
     difficulty: 'beginner',
     completed: true,
     started: true,
+    visualTheme: 'polish_classroom',
     sections: [
       {
         id: 1,
@@ -113,6 +116,7 @@ export const lessons: Lesson[] = [
     difficulty: 'beginner',
     completed: true,
     started: true,
+    visualTheme: 'street_cafe',
     sections: [
       {
         id: 1,
@@ -189,6 +193,7 @@ export const lessons: Lesson[] = [
     difficulty: 'beginner',
     completed: false,
     started: true,
+    visualTheme: 'polish_classroom',
     sections: [
       {
         id: 1,
@@ -265,6 +270,7 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     completed: false,
     started: false,
+    visualTheme: 'polish_classroom',
     sections: [
       {
         id: 1,
@@ -334,6 +340,7 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     completed: false,
     started: false,
+    visualTheme: 'polish_classroom',
     sections: [
       {
         id: 1,
@@ -403,6 +410,7 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     completed: false,
     started: false,
+    visualTheme: 'polish_classroom',
     sections: [
       {
         id: 1,
@@ -472,6 +480,7 @@ export const lessons: Lesson[] = [
     difficulty: 'beginner',
     completed: false,
     started: false,
+    visualTheme: 'polish_classroom',
     sections: [
       {
         id: 1,
@@ -556,6 +565,7 @@ export const lessons: Lesson[] = [
     difficulty: 'beginner',
     completed: false,
     started: false,
+    visualTheme: 'polish_classroom',
     sections: [
       {
         id: 1,
@@ -640,6 +650,7 @@ export const lessons: Lesson[] = [
     difficulty: 'beginner',
     completed: false,
     started: false,
+    visualTheme: 'polish_classroom',
     sections: [
       {
         id: 1,
@@ -724,6 +735,7 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     completed: false,
     started: false,
+    visualTheme: 'polish_classroom',
     sections: [
       {
         id: 1,
@@ -808,6 +820,7 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     completed: false,
     started: false,
+    visualTheme: 'polish_classroom',
     sections: [
       {
         id: 1,
@@ -892,6 +905,7 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     completed: false,
     started: false,
+    visualTheme: 'polish_classroom',
     sections: [
       {
         id: 1,
@@ -976,6 +990,7 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     completed: false,
     started: false,
+    visualTheme: 'polish_classroom',
     sections: [
       {
         id: 1,
@@ -1060,6 +1075,7 @@ export const lessons: Lesson[] = [
     difficulty: 'advanced',
     completed: false,
     started: false,
+    visualTheme: 'polish_classroom',
     sections: [
       {
         id: 1,
@@ -1144,6 +1160,7 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     completed: false,
     started: false,
+    visualTheme: 'polish_classroom',
     sections: [
       {
         id: 1,
@@ -1228,6 +1245,7 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     completed: false,
     started: false,
+    visualTheme: 'polish_classroom',
     sections: [
       {
         id: 1,
@@ -1312,6 +1330,7 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     completed: false,
     started: false,
+    visualTheme: 'polish_classroom',
     sections: [
       {
         id: 1,
@@ -1385,6 +1404,261 @@ export const lessons: Lesson[] = [
         options: ["Gdzie mieszkasz?", "Gdzie pracujesz?", "Co robisz?", "Ile zarabiasz?"],
         correctAnswer: 1,
         explanation: "'Gdzie pracujesz?' means 'Where do you work?' — 'pracujesz' is the second person singular of 'pracować' (to work). 'Gdzie mieszkasz?' means 'Where do you live?', 'Co robisz?' means 'What do you do?', 'Ile zarabiasz?' means 'How much do you earn?'"
+      }
+    ]
+  },
+  {
+    id: 18,
+    title: "Housing & Daily Life",
+    description: "Talk about homes, apartments, rooms, and daily routines in Polish.",
+    duration: "50 min",
+    difficulty: 'intermediate',
+    completed: false,
+    started: false,
+    visualTheme: 'polish_classroom',
+    sections: [
+      {
+        id: 1,
+        title: "Types of Housing",
+        content: "Polish housing vocabulary: mieszkanie (apartment), dom (house), pokój (room), akademik (student dormitory), pensjonat (guesthouse). Most Poles live in apartments (blok/mieszkanie) in cities; houses are more common in suburbs and rural areas. 'Blok' refers specifically to large multi-apartment buildings — a defining feature of Polish cities.",
+        type: 'text'
+      },
+      {
+        id: 2,
+        title: "Rooms & Furniture",
+        content: "Room names: kuchnia (kitchen), łazienka (bathroom), sypialnia (bedroom), salon (living room), przedpokój (hallway), balkon (balcony), piwnica (basement/cellar). Common furniture: łóżko (bed), stół (table), krzesło (chair), sofa/kanapa (sofa), szafa (wardrobe), biurko (desk).",
+        type: 'text'
+      },
+      {
+        id: 3,
+        title: "Daily Routines",
+        content: "Daily routine phrases: Wstaję o siódmej (I get up at seven), Idę do pracy (I go to work), Jem śniadanie (I eat breakfast), Kąpię się (I bathe). Poles typically eat three main meals: śniadanie (breakfast, around 7-9am), obiad (the main hot meal, around 2-4pm), kolacja (light evening meal, around 6-8pm).",
+        type: 'interactive'
+      }
+    ],
+    vocabulary: [
+      {
+        polish: "mieszkanie",
+        english: "apartment",
+        phonetic: "mye-shka-nye",
+        exampleSentence: "Mam małe mieszkanie w centrum.",
+        mastered: false
+      },
+      {
+        polish: "pokój",
+        english: "room",
+        phonetic: "po-koo",
+        exampleSentence: "Mój pokój jest na drugim piętrze.",
+        mastered: false
+      },
+      {
+        polish: "kuchnia",
+        english: "kitchen",
+        phonetic: "kookh-nya",
+        exampleSentence: "Kuchnia jest połączona z salonem.",
+        mastered: false
+      },
+      {
+        polish: "łazienka",
+        english: "bathroom",
+        phonetic: "wa-zhen-ka",
+        exampleSentence: "Łazienka jest obok sypialni.",
+        mastered: false
+      }
+    ],
+    exercises: [
+      {
+        id: 1,
+        type: 'multiple-choice',
+        question: "How do you say 'apartment' in Polish?",
+        options: ["dom", "pokój", "mieszkanie", "balkon"],
+        correctAnswer: 2,
+        explanation: "Mieszkanie means apartment. Dom is house, pokój is room, balkon is balcony."
+      },
+      {
+        id: 2,
+        type: 'fill-blank',
+        question: "'Kuchnia' means '___________' (kitchen).",
+        correctAnswer: "kitchen",
+        explanation: "Kuchnia is the kitchen. It's also the word for cuisine (e.g., 'polska kuchnia' = Polish cuisine)."
+      },
+      {
+        id: 3,
+        type: 'multiple-choice',
+        question: "What does 'Wstaję o siódmej' mean?",
+        options: ["I go to sleep at seven.", "I wake up at seven.", "I eat at seven.", "I work at seven."],
+        correctAnswer: 1,
+        explanation: "Wstaję means 'I get up/wake up.' Wstawać is the imperfective form of 'to get up.' The perfective version is 'wstać' (completed action)."
+      }
+    ]
+  },
+  {
+    id: 19,
+    title: "Polish Cuisine & Dining Etiquette",
+    description: "Explore Polish food culture, traditional dishes, restaurant customs, and cooking vocabulary.",
+    duration: "55 min",
+    difficulty: 'intermediate',
+    completed: false,
+    started: false,
+    visualTheme: 'polish_classroom',
+    sections: [
+      {
+        id: 1,
+        title: "Classic Polish Dishes",
+        content: "Traditional Polish dishes: pierogi (dumplings — the national dish, with various fillings: mięso/meat, kapusta/kimchi, grzyby/mushroom, ruskie/potato & cheese), bigos (hunter's stew with cabbage and meat), żurek (sour rye soup, traditionally served in bread bowl), barszcz (beetroot soup, especially at Christmas), gołąbki (stuffed cabbage rolls), kotlet schabowy (breaded pork cutlet).",
+        type: 'text'
+      },
+      {
+        id: 2,
+        title: "Polish Drinks & Desserts",
+        content: "Drinks: herbata (tea — very popular, Poles drink it with lemon or sugar), kawa (coffee — usually espresso-style 'kawa'), wódka (vodka — Poland's famous spirit, 'czysta' is plain, 'pieprzowa' is pepper-flavoured), kompot (fruit compote, traditional). Desserts: sernik (Polish cheesecake), szarlotka (apple pie), makowiec (poppy seed cake), pączki (doughnuts, traditionally eaten on Fat Thursday).",
+        type: 'text'
+      },
+      {
+        id: 3,
+        title: "Dining Customs & Manners",
+        content: "Polish dining customs: 'Na zdrowie!' (Cheers!/Bless you after a sneeze), 'Smacznego!' (Enjoy your meal!), 'Dobry apetyt!' (Good appetite!). At a Polish home, hosts will insist you eat more — it's polite to accept at least a little. 'Czy mogę pomóc?' (Can I help?) is expected if you're a guest. Leaving a little food on your plate is normal — it signals you're satisfied.",
+        type: 'interactive'
+      }
+    ],
+    vocabulary: [
+      {
+        polish: "pierogi",
+        english: "dumplings",
+        phonetic: "pye-ro-ghee",
+        exampleSentence: "Lubię pierogi z kapustą i grzybami.",
+        mastered: false
+      },
+      {
+        polish: "bigos",
+        english: "hunter's stew",
+        phonetic: "bi-gos",
+        exampleSentence: "Bigos to tradycyjna polska potrawa.",
+        mastered: false
+      },
+      {
+        polish: "herbata",
+        english: "tea",
+        phonetic: "her-ba-ta",
+        exampleSentence: "Piję herbatę z cytryną codziennie.",
+        mastered: false
+      },
+      {
+        polish: "smacznego",
+        english: "enjoy your meal",
+        phonetic: "smach-ne-go",
+        exampleSentence: "Smacznego! — Dziękuję, równi",
+        mastered: false
+      }
+    ],
+    exercises: [
+      {
+        id: 1,
+        type: 'multiple-choice',
+        question: "What are 'pierogi'?",
+        options: ["Stuffed cabbage rolls", "Breaded pork cutlet", "Dumplings", "Beetroot soup"],
+        correctAnswer: 2,
+        explanation: "Pierogi are dumplings — one of Poland's most famous dishes. Gołąbki are stuffed cabbage rolls, kotlet schabowy is breaded pork cutlet, barszcz is beetroot soup."
+      },
+      {
+        id: 2,
+        type: 'fill-blank',
+        question: "'Herbata' means '___________' (tea).",
+        correctAnswer: "tea",
+        explanation: "Herbata is tea. Poles typically drink it with a slice of lemon (cytryna) or sugar (cukier). Coffee is 'kawa.'"
+      },
+      {
+        id: 3,
+        type: 'multiple-choice',
+        question: "What do you say before eating in Polish?",
+        options: ["Do widzenia!", "Smacznego!", "Dziękuję!", "Na zdrowie!"],
+        correctAnswer: 1,
+        explanation: "'Smacznego!' means 'Enjoy your meal!' — said before eating. 'Na zdrowie!' means 'Cheers!/Bless you!' and is used when drinking or when someone sneezes."
+      }
+    ]
+  },
+  {
+    id: 20,
+    title: "Culture & Polish Traditions",
+    description: "Learn about Polish holidays, customs, social etiquette, and the cultural values that shape everyday life.",
+    duration: "55 min",
+    difficulty: 'intermediate',
+    completed: false,
+    started: false,
+    visualTheme: 'polish_classroom',
+    sections: [
+      {
+        id: 1,
+        title: "Major Polish Holidays",
+        content: "Key holidays: Wigilia (Christmas Eve, December 24 — the most important day of Christmas, not Christmas Day itself), Boże Narodzenie (Christmas, Dec 25-26), Wielkanoc (Easter), Dzień Babci/Dziadka (Grandmother's/Grandfather's Day, Jan 21/22), Dzień Kobiet (Women's Day, March 8 — big in Poland, men give flowers and small gifts to women).",
+        type: 'text'
+      },
+      {
+        id: 2,
+        title: "Polish Social Customs",
+        content: "Important customs: Punctuality is highly valued — being late is disrespectful. When visiting someone's home, always bring a small gift (flowers, sweets, wine). Remove shoes indoors — this is standard in Polish homes. Greetings: shake hands with a firm grip, close friends kiss on both cheeks (started from right). Polish people are warm but indirect — small talk comes before business.",
+        type: 'text'
+      },
+      {
+        id: 3,
+        title: "Polish Identity & Values",
+        content: "Poland has a strong sense of national and regional identity. Family is central — 'rodzina' is deeply valued. Catholic tradition is historically significant (about 87% of Poles identify as Catholic), though church attendance varies. Poles take pride in their history, literature (Mickiewicz, Sienkiewicz), and composers (Chopin was Polish).",
+        type: 'interactive'
+      }
+    ],
+    vocabulary: [
+      {
+        polish: "święta",
+        english: "holidays / Christmas",
+        phonetic: "shfyen-ta",
+        exampleSentence: "W Polsce święta są bardzo rodzinne.",
+        mastered: false
+      },
+      {
+        polish: "tradycja",
+        english: "tradition",
+        phonetic: "tra-di-tsya",
+        exampleSentence: "Polska tradycja jest bogata i różnorodna.",
+        mastered: false
+      },
+      {
+        polish: "rodzina",
+        english: "family",
+        phonetic: "ro-dzi-na",
+        exampleSentence: "Rodzina jest dla mnie najważniejsza.",
+        mastered: false
+      },
+      {
+        polish: "kultura",
+        english: "culture",
+        phonetic: "kool-tu-ra",
+        exampleSentence: "Polska kultura jest bardzo interesująca.",
+        mastered: false
+      }
+    ],
+    exercises: [
+      {
+        id: 1,
+        type: 'multiple-choice',
+        question: "What is 'Wigilia'?",
+        options: ["Easter Sunday", "Christmas Eve", "New Year's Eve", "Good Friday"],
+        correctAnswer: 1,
+        explanation: "Wigilia is Christmas Eve (December 24) — the most important Christmas celebration in Poland. Boże Narodzenie (Dec 25-26) is Christmas Day. The Wigilia dinner is a major tradition with 12 dishes representing the 12 apostles."
+      },
+      {
+        id: 2,
+        type: 'fill-blank',
+        question: "'Rodzina' means '___________' (family).",
+        correctAnswer: "family",
+        explanation: "Rodzina means family. Poles place enormous importance on family ties — Sunday family dinners are still common. 'Moja rodzina' = my family."
+      },
+      {
+        id: 3,
+        type: 'multiple-choice',
+        question: "What should you do when visiting a Polish home?",
+        options: ["Keep your shoes on", "Bring a small gift", "Start eating immediately", "Avoid complimenting the food"],
+        correctAnswer: 1,
+        explanation: "In Polish culture, guests are expected to bring a small gift (flowers, sweets, or wine). Removing shoes indoors is mandatory, not optional. It's polite to compliment the food and wait for the host to invite you to start eating."
       }
     ]
   }

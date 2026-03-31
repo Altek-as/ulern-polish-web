@@ -1,25 +1,46 @@
 "use client";
 
-import { BookOpen, Clock, CheckCircle } from "lucide-react";
+import { useState, useMemo } from "react";
+import { BookOpen, Clock, CheckCircle, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { lessons } from "@/lib/data/lessons";
 import { useProgressStore } from "@/lib/store/progress";
 
+type DifficultyFilter = "all" | "beginner" | "intermediate" | "advanced";
+
 export default function LessonsPage() {
   const router = useRouter();
   const { getLessonProgress, getOverallProgress } = useProgressStore();
-  
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [difficultyFilter, setDifficultyFilter] = useState<DifficultyFilter>("all");
+
   // Merge lesson data with progress data
-  const lessonsWithProgress = lessons.map(lesson => {
-    const progress = getLessonProgress(lesson.id);
-    return {
-      ...lesson,
-      completed: progress?.completed || lesson.completed,
-      started: progress?.started || lesson.started,
-    };
-  });
-  
+  const lessonsWithProgress = useMemo(() => {
+    return lessons.map(lesson => {
+      const progress = getLessonProgress(lesson.id);
+      return {
+        ...lesson,
+        completed: progress?.completed || lesson.completed,
+        started: progress?.started || lesson.started,
+      };
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Filter lessons
+  const filteredLessons = useMemo(() => {
+    return lessonsWithProgress.filter(lesson => {
+      const matchesSearch =
+        searchQuery === "" ||
+        lesson.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        lesson.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesDifficulty =
+        difficultyFilter === "all" || lesson.difficulty === difficultyFilter;
+      return matchesSearch && matchesDifficulty;
+    });
+  }, [lessonsWithProgress, searchQuery, difficultyFilter]);
+
   const overallProgress = getOverallProgress();
 
   function handleLessonClick(lesson: typeof lessonsWithProgress[0]) {
@@ -40,8 +61,61 @@ export default function LessonsPage() {
         </p>
       </div>
 
+      {/* Filter + Search bar */}
+      <div className="bg-white border border-gray-200 rounded-xl p-4 mb-8 flex flex-col sm:flex-row gap-4 items-center">
+        {/* Search */}
+        <div className="relative flex-1 w-full">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Szukaj lekcji..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-gray-900"
+          />
+        </div>
+
+        {/* Difficulty filter */}
+        <div className="flex gap-2">
+          {(["all", "beginner", "intermediate", "advanced"] as DifficultyFilter[]).map((level) => (
+            <button
+              key={level}
+              onClick={() => setDifficultyFilter(level)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                difficultyFilter === level
+                  ? level === "all"
+                    ? "bg-red-600 text-white"
+                    : level === "beginner"
+                    ? "bg-green-600 text-white"
+                    : level === "intermediate"
+                    ? "bg-yellow-600 text-white"
+                    : "bg-red-700 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              {level === "all"
+                ? "Wszystkie"
+                : level === "beginner"
+                ? "Początkujący"
+                : level === "intermediate"
+                ? "Średniozaawansowany"
+                : "Zaawansowany"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Result count */}
+      {(searchQuery || difficultyFilter !== "all") && (
+        <p className="text-gray-600 mb-4 text-sm">
+          Znaleziono {filteredLessons.length} {filteredLessons.length === 1 ? "lekcję" : filteredLessons.length < 5 ? "lekcje" : "lekcji"}
+          {searchQuery && <> dla &quot;{searchQuery}&quot;</>}
+          {difficultyFilter !== "all" && <> na poziomie {difficultyFilter}</>}.
+        </p>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-        {lessonsWithProgress.map((lesson) => (
+        {filteredLessons.map((lesson) => (
           <div
             key={lesson.id}
             className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow"
