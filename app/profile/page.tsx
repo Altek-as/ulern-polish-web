@@ -28,7 +28,7 @@ export default function ProfilePage() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <div className="h-12 w-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="mt-4 text-gray-700">Checking authentication...</p>
+          <p className="mt-4 text-gray-700">Sprawdzanie uwierzytelniania...</p>
         </div>
       </div>
     );
@@ -61,18 +61,18 @@ export default function ProfilePage() {
   }) : "Recent";
 
   const stats = [
-    { label: "Lessons Completed", value: "4", total: "12", icon: Target, color: "bg-blue-500" },
-    { label: "Exercise Score", value: "87%", icon: TrendingUp, color: "bg-green-500" },
-    { label: "Learning Streak", value: "7 days", icon: Award, color: "bg-purple-500" },
+    { label: "Ukończone lekcje", value: "4", total: "12", icon: Target, color: "bg-blue-500" },
+    { label: "Wynik ćwiczeń", value: "87%", icon: TrendingUp, color: "bg-green-500" },
+    { label: "Seria nauki", value: "7 dni", icon: Award, color: "bg-purple-500" },
   ];
 
   return (
     <div className="py-8">
       <div className="max-w-6xl mx-auto">
         <div className="mb-10">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Your Profile</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Twój profil</h1>
           <p className="text-gray-700 text-lg">
-            Manage your account and track your Polish learning progress.
+            Zarządzaj swoim kontem i śledź postępy w nauce polskiego.
           </p>
         </div>
 
@@ -86,22 +86,22 @@ export default function ProfilePage() {
                   <User className="h-12 w-12 text-red-600" />
                 </div>
                 <div className="flex-1">
-                  <h2 className="text-2xl font-bold text-gray-900">Personal Information</h2>
-                  <p className="text-gray-600">Update your profile details below.</p>
+                  <h2 className="text-2xl font-bold text-gray-900">Dane osobowe</h2>
+                  <p className="text-gray-600">Zaktualizuj szczegóły swojego profilu poniżej.</p>
                 </div>
                 <button
                   onClick={() => setIsEditing(!isEditing)}
                   className="flex items-center text-red-600 hover:text-red-700 font-semibold"
                 >
                   <Edit className="h-5 w-5 mr-2" />
-                  {isEditing ? "Cancel Editing" : "Edit Profile"}
+                  {isEditing ? "Anuluj edycję" : "Edytuj profil"}
                 </button>
               </div>
 
               <div className="space-y-6">
                 <div>
                   <label className="block text-gray-900 font-medium mb-2" htmlFor="name">
-                    Full Name
+                    Imię i nazwisko
                   </label>
                   {isEditing ? (
                     <input
@@ -110,7 +110,7 @@ export default function ProfilePage() {
                       value={editedName}
                       onChange={(e) => setEditedName(e.target.value)}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
-                      placeholder="Your name"
+                      placeholder="Twoje imię"
                     />
                   ) : (
                     <div className="flex items-center text-gray-900">
@@ -122,7 +122,7 @@ export default function ProfilePage() {
 
                 <div>
                   <label className="block text-gray-900 font-medium mb-2" htmlFor="email">
-                    Email Address
+                    Adres email
                   </label>
                   {isEditing ? (
                     <input
@@ -142,7 +142,7 @@ export default function ProfilePage() {
                 </div>
 
                 <div>
-                  <label className="block text-gray-900 font-medium mb-2">Member Since</label>
+                  <label className="block text-gray-900 font-medium mb-2">Członek od</label>
                   <div className="flex items-center text-gray-900">
                     <Calendar className="h-5 w-5 mr-2 text-gray-400" />
                     <span className="text-lg">{joinDate}</span>
@@ -158,12 +158,12 @@ export default function ProfilePage() {
                     {loading ? (
                       <>
                         <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                        Saving...
+                        Zapisywanie...
                       </>
                     ) : (
                       <>
                         <Save className="h-5 w-5 mr-2" />
-                        Save Changes
+                        Zapisz zmiany
                       </>
                     )}
                   </button>
@@ -185,7 +185,7 @@ export default function ProfilePage() {
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900">{stat.label}</h3>
                     {stat.total && (
-                      <p className="text-gray-600 text-sm mt-1">{stat.value} of {stat.total} lessons</p>
+                      <p className="text-gray-600 text-sm mt-1">{stat.value} z {stat.total} lekcji</p>
                     )}
                   </div>
                 );
@@ -197,34 +197,34 @@ export default function ProfilePage() {
           <div className="space-y-8">
             {/* Account Actions */}
             <div className="bg-white border border-gray-200 rounded-xl p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Account Actions</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Akcje konta</h2>
               <div className="space-y-4">
                 <button
                   onClick={handleLogout}
                   className="w-full flex items-center justify-center p-4 border border-gray-300 text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
                 >
                   <LogOut className="h-5 w-5 mr-3" />
-                  Sign Out
+                  Wyloguj się
                 </button>
                 <button className="w-full flex items-center justify-center p-4 border border-gray-300 text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">
                   <Mail className="h-5 w-5 mr-3" />
-                  Change Password
+                  Zmień hasło
                 </button>
                 <button className="w-full flex items-center justify-center p-4 border border-gray-300 text-gray-900 hover:bg-gray-50 rounded-lg transition-colors">
                   <Award className="h-5 w-5 mr-3" />
-                  View Achievements
+                  Zobacz osiągnięcia
                 </button>
               </div>
             </div>
 
             {/* Learning Goals */}
             <div className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl p-6">
-              <h2 className="text-xl font-bold mb-4">Learning Goals</h2>
-               <p className="mb-6">You&apos;re making great progress! Keep up the daily practice to reach fluency.</p>
+              <h2 className="text-xl font-bold mb-4">Cele nauki</h2>
+               <p className="mb-6">Osiągasz świetne postępy! Kontynuuj codzienną praktykę, aby osiągnąć biegłość.</p>
               <div className="space-y-4">
                 <div className="flex justify-between">
-                  <span>Daily Lessons</span>
-                  <span className="font-bold">2/3 completed</span>
+                  <span>Dzienne lekcje</span>
+                  <span className="font-bold">2/3 ukończone</span>
                 </div>
                 <div className="w-full bg-red-800 rounded-full h-2">
                   <div className="bg-white h-2 rounded-full" style={{ width: "66%" }}></div>
@@ -234,19 +234,19 @@ export default function ProfilePage() {
 
             {/* Quick Links */}
             <div className="bg-white border border-gray-200 rounded-xl p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Quick Links</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Szybkie linki</h2>
               <div className="space-y-3">
                  <Link href="/lessons" className="block text-red-600 hover:text-red-700 font-medium">
-                   Continue Learning
+                   Kontynuuj naukę
                  </Link>
                  <Link href="/exercises" className="block text-red-600 hover:text-red-700 font-medium">
-                   Practice Vocabulary
+                   Ćwicz słownictwo
                  </Link>
                  <Link href="/progress" className="block text-red-600 hover:text-red-700 font-medium">
-                   View Progress Dashboard
+                   Zobacz panel postępów
                  </Link>
                  <Link href="/" className="block text-red-600 hover:text-red-700 font-medium">
-                   Back to Home
+                   Wróć do strony głównej
                  </Link>
               </div>
             </div>

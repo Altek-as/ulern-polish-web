@@ -44,7 +44,7 @@ export default function LoginPage() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <div className="h-12 w-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="mt-4 text-gray-700">Redirecting to your progress...</p>
+          <p className="mt-4 text-gray-700">Przekierowanie do postępów...</p>
         </div>
       </div>
     );
@@ -54,9 +54,9 @@ export default function LoginPage() {
     <div className="py-8">
       <div className="max-w-md mx-auto">
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome Back</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Witaj ponownie</h1>
           <p className="text-gray-700">
-            Sign in to continue your Polish language learning journey.
+            Zaloguj się, aby kontynuować naukę języka polskiego.
           </p>
         </div>
 
@@ -71,7 +71,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-gray-900 font-medium mb-2" htmlFor="email">
-                Email Address
+                Adres email
               </label>
               <div className="relative">
                 <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -92,7 +92,7 @@ export default function LoginPage() {
 
             <div>
               <label className="block text-gray-900 font-medium mb-2" htmlFor="password">
-                Password
+                Hasło
               </label>
               <div className="relative">
                 <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -119,11 +119,11 @@ export default function LoginPage() {
                   className="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
                 />
                 <label htmlFor="remember" className="ml-2 text-gray-700">
-                  Remember me
+                  Zapamiętaj mnie
                 </label>
               </div>
               <a href="#" className="text-red-600 hover:text-red-700 font-medium">
-                Forgot password?
+                Zapomniałeś hasła?
               </a>
             </div>
 
@@ -135,12 +135,12 @@ export default function LoginPage() {
               {loading ? (
                 <>
                   <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  Signing In...
+                  Logowanie...
                 </>
               ) : (
                 <>
                   <LogIn className="mr-2 h-5 w-5" />
-                  Sign In
+                  Zaloguj się
                 </>
               )}
             </button>
@@ -148,16 +148,16 @@ export default function LoginPage() {
 
           <div className="mt-8 pt-8 border-t border-gray-200">
             <p className="text-gray-700 text-center">
-               Don&apos;t have an account?{" "}
+              Nie masz konta?{" "}
               <Link href="/register" className="text-red-600 hover:text-red-700 font-semibold">
-                Create one now
+                Zarejestruj się teraz
               </Link>
             </p>
           </div>
         </div>
 
         <div className="mt-8 text-center text-gray-600 text-sm">
-          <p>By signing in, you agree to our Terms of Service and Privacy Policy.</p>
+          <p>Logując się, akceptujesz nasz Regulamin i Politykę Prywatności.</p>
         </div>
       </div>
     </div>

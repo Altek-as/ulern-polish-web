@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "uLern Polish - Learn Polish Language",
-  description: "Interactive Polish language learning platform with lessons, exercises, and progress tracking",
+  title: "uLern Polish - Ucz się polskiego",
+  description: "Interaktywna platforma do nauki języka polskiego z lekcjami, ćwiczeniami i śledzeniem postępów",
 };
 
 export default function RootLayout({
@@ -52,25 +52,25 @@ export default function RootLayout({
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-6">
               <Link href="/" className="text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-500 font-medium transition-colors">
-                Home
+                Strona główna
               </Link>
               <Link href="/lessons" className="text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-500 font-medium transition-colors">
-                Lessons
+                Lekcje
               </Link>
               <Link href="/exercises" className="text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-500 font-medium transition-colors">
-                Exercises
+                Ćwiczenia
               </Link>
               <Link href="/level-test" className="text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-500 font-medium transition-colors">
-                Level Test
+                Test poziomu
               </Link>
               <Link href="/progress" className="text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-500 font-medium transition-colors">
-                Progress
+                Postęp
               </Link>
               <Link href="/login" className="text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-500 font-medium transition-colors">
-                Login
+                Zaloguj się
               </Link>
               <button className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors">
-                Get Started
+                Zacznij za darmo
               </button>
               <AIStatusBadge />
               <ThemeToggle />
@@ -96,22 +96,22 @@ export default function RootLayout({
               <div className="absolute left-0 right-0 top-full border-t border-gray-200 bg-white px-4 py-3 hidden peer-checked:block">
                 <div className="flex flex-col space-y-3">
                   <a href="/" className="text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-500 font-medium py-2">
-                    Home
+                    Strona główna
                   </a>
                   <a href="/lessons" className="text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-500 font-medium py-2">
-                    Lessons
+                    Lekcje
                   </a>
                   <a href="/exercises" className="text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-500 font-medium py-2">
-                    Exercises
+                    Ćwiczenia
                   </a>
                   <a href="/level-test" className="text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-500 font-medium py-2">
-                    Level Test
+                    Test poziomu
                   </a>
                   <a href="/progress" className="text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-500 font-medium py-2">
-                    Progress
+                    Postęp
                   </a>
                   <a href="/login" className="text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-500 font-medium py-2">
-                    Login
+                    Zaloguj się
                   </a>
                   <div className="py-2">
                     <ThemeToggle />
@@ -138,11 +138,11 @@ export default function RootLayout({
                   </div>
                    <span className="text-xl font-bold text-gray-900 dark:text-gray-100">uLern<span className="text-red-600">Polish</span></span>
                 </div>
-                 <p className="text-gray-600 dark:text-gray-400 mt-2">Learn Polish language effectively with interactive lessons and exercises.</p>
+                 <p className="text-gray-600 dark:text-gray-400 mt-2">Ucz się polskiego skutecznie dzięki interaktywnym lekcjom i ćwiczeniom.</p>
               </div>
                <div className="text-gray-600 dark:text-gray-400">
-                <p>&copy; {new Date().getFullYear()} uLern Polish. All rights reserved.</p>
-                <p className="text-sm mt-1">Made with ❤️ for Polish learners worldwide.</p>
+                <p>&copy; {new Date().getFullYear()} uLern Polish. Wszelkie prawa zastrzeżone.</p>
+                <p className="text-sm mt-1">Stworzone z ❤️ dla uczniów polskiego na całym świecie.</p>
               </div>
             </div>
           </div>

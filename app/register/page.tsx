@@ -21,12 +21,12 @@ export default function RegisterPage() {
     setError(null);
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError("Hasła nie są identyczne");
       return;
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+      setError("Hasło musi mieć co najmniej 6 znaków");
       return;
     }
 
@@ -36,7 +36,7 @@ export default function RegisterPage() {
     if (result.success) {
       router.push("/progress");
     } else {
-      setError(result.error || "Registration failed. Please try again.");
+      setError(result.error || "Rejestracja nie powiodła się. Spróbuj ponownie.");
     }
     
     setLoading(false);
@@ -55,7 +55,7 @@ export default function RegisterPage() {
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
           <div className="h-12 w-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="mt-4 text-gray-700">Redirecting to your progress...</p>
+          <p className="mt-4 text-gray-700">Przekierowanie do postępów...</p>
         </div>
       </div>
     );
@@ -65,9 +65,9 @@ export default function RegisterPage() {
     <div className="py-8">
       <div className="max-w-md mx-auto">
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Create Your Account</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Utwórz swoje konto</h1>
           <p className="text-gray-700">
-            Join uLern Polish and start your language learning journey today.
+            Dołącz do uLern Polish i rozpocznij swoją przygodę z nauką języka już dziś.
           </p>
         </div>
 
@@ -82,7 +82,7 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-gray-900 font-medium mb-2" htmlFor="name">
-                Full Name
+                Imię i nazwisko
               </label>
               <div className="relative">
                 <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -96,14 +96,14 @@ export default function RegisterPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
-                  placeholder="John Doe"
+                  placeholder="Jan Kowalski"
                 />
               </div>
             </div>
 
             <div>
               <label className="block text-gray-900 font-medium mb-2" htmlFor="email">
-                Email Address
+                Adres email
               </label>
               <div className="relative">
                 <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -117,14 +117,14 @@ export default function RegisterPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
-                  placeholder="you@example.com"
+                  placeholder="ty@example.com"
                 />
               </div>
             </div>
 
             <div>
               <label className="block text-gray-900 font-medium mb-2" htmlFor="password">
-                Password
+                Hasło
               </label>
               <div className="relative">
                 <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -141,12 +141,12 @@ export default function RegisterPage() {
                   placeholder="••••••••"
                 />
               </div>
-              <p className="text-gray-600 text-sm mt-2">Must be at least 6 characters.</p>
+              <p className="text-gray-600 text-sm mt-2">Hasło musi mieć co najmniej 6 znaków.</p>
             </div>
 
             <div>
               <label className="block text-gray-900 font-medium mb-2" htmlFor="confirmPassword">
-                Confirm Password
+                Powtórz hasło
               </label>
               <div className="relative">
                 <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -173,14 +173,14 @@ export default function RegisterPage() {
                 required
                 className="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
               />
-              <label htmlFor="terms" className="ml-2 text-gray-700">
-                I agree to the{" "}
+              <label htmlFor="terms" className="ml-2 text-gray-700 text-sm">
+                Wyrażam zgodę na{" "}
                 <a href="#" className="text-red-600 hover:text-red-700 font-medium">
-                  Terms of Service
+                  Regulamin
                 </a>{" "}
-                and{" "}
+                oraz{" "}
                 <a href="#" className="text-red-600 hover:text-red-700 font-medium">
-                  Privacy Policy
+                  Politykę Prywatności
                 </a>
               </label>
             </div>
@@ -193,12 +193,12 @@ export default function RegisterPage() {
               {loading ? (
                 <>
                   <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  Creating Account...
+                  Tworzenie konta...
                 </>
               ) : (
                 <>
                   <UserPlus className="mr-2 h-5 w-5" />
-                  Create Account
+                  Utwórz konto
                 </>
               )}
             </button>
@@ -206,16 +206,16 @@ export default function RegisterPage() {
 
           <div className="mt-8 pt-8 border-t border-gray-200">
             <p className="text-gray-700 text-center">
-              Already have an account?{" "}
+              Masz już konto?{" "}
               <Link href="/login" className="text-red-600 hover:text-red-700 font-semibold">
-                Sign in here
+                Zaloguj się tutaj
               </Link>
             </p>
           </div>
         </div>
 
         <div className="mt-8 text-center text-gray-600 text-sm">
-          <p>By creating an account, you agree to our Terms of Service and Privacy Policy.</p>
+          <p>Tworząc konto, akceptujesz Regulamin i Politykę Prywatności.</p>
         </div>
       </div>
     </div>

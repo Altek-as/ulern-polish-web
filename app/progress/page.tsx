@@ -42,26 +42,26 @@ export default function ProgressPage() {
 
   const stats = [
     { 
-      label: "Lessons Completed", 
+      label: "Ukończone lekcje", 
       value: completedLessons.toString(), 
       total: lessons.length.toString(), 
       color: "bg-blue-500",
       icon: BookOpen
     },
     { 
-      label: "Overall Progress", 
+      label: "Ogólny postęp", 
       value: `${overallProgress}%`, 
       color: "bg-green-500",
       icon: TrendingUp
     },
     { 
-      label: "Learning Streak", 
-      value: `${streakDays} day${streakDays !== 1 ? 's' : ''}`, 
+      label: "Seria nauki", 
+      value: `${streakDays} ${streakDays !== 1 ? 'dni' : 'dzień'}`, 
       color: "bg-purple-500",
       icon: Calendar
     },
     { 
-      label: "Words Mastered", 
+      label: "Opanowane słówka", 
       value: masteredWords.toString(), 
       total: totalWords > 0 ? totalWords.toString() : undefined,
       color: "bg-orange-500",
@@ -71,20 +71,20 @@ export default function ProgressPage() {
 
   const recentAchievements = [
     { 
-      title: "First Lesson", 
-      description: completedLessons > 0 ? "Completed Polish Alphabet lesson" : "Complete your first lesson to unlock", 
+      title: "Pierwsza lekcja", 
+      description: completedLessons > 0 ? "Ukończyłeś lekcję alfabetu polskiego" : "Ukończ pierwszą lekcję, aby odblokować", 
       date: "2026-03-20",
       unlocked: completedLessons > 0
     },
     { 
-      title: "Vocabulary Master", 
-      description: masteredWords >= 10 ? `Learned ${masteredWords} Polish words` : "Learn 10 words to unlock", 
+      title: "Mistrz słownictwa", 
+      description: masteredWords >= 10 ? `Nauczyłeś się ${masteredWords} polskich słów` : "Naucz się 10 słów, aby odblokować", 
       date: "2026-03-18",
       unlocked: masteredWords >= 10
     },
     { 
-      title: "Consistency", 
-      description: streakDays >= 7 ? `${streakDays}-day learning streak` : "Maintain a 7-day streak to unlock", 
+      title: "Konsystencja", 
+      description: streakDays >= 7 ? `${streakDays}-dniowa seria nauki` : "Utrzymuj 7-dniową serię, aby odblokować", 
       date: "2026-03-22",
       unlocked: streakDays >= 7
     },
@@ -103,11 +103,11 @@ export default function ProgressPage() {
     <div className="py-8">
       <div className="mb-10">
         <h1 className="text-4xl font-bold text-gray-900 mb-2">
-          {user ? `${user.name}'s Learning Progress` : "Your Learning Progress"}
+          {user ? `Postępy w nauce ${user.name}` : "Twoje postępy w nauce"}
         </h1>
         <p className="text-gray-700 text-lg">
-          Track your improvement, achievements, and learning statistics over time.
-          {user && <span className="block text-red-600 font-medium mt-2">Keep up the great work!</span>}
+          Śledź swoje postępy, osiągnięcia i statystyki nauki w czasie.
+          {user && <span className="block text-red-600 font-medium mt-2">Kontynuuj świetną pracę!</span>}
         </p>
       </div>
 
@@ -123,13 +123,13 @@ export default function ProgressPage() {
             </div>
             <h3 className="text-lg font-semibold text-gray-900">{stat.label}</h3>
             {stat.total && (
-              <p className="text-gray-600 text-sm mt-1">{stat.value} of {stat.total} {stat.label.includes('Lesson') ? 'lessons' : 'words'}</p>
+              <p className="text-gray-600 text-sm mt-1">{stat.value} z {stat.total} {stat.label.includes('Lekc') ? 'lekcji' : 'słów'}</p>
             )}
-            {!stat.total && stat.label === "Overall Progress" && (
-              <p className="text-gray-600 text-sm mt-1">{startedLessons} lessons started</p>
+            {!stat.total && stat.label === "Ogólny postęp" && (
+              <p className="text-gray-600 text-sm mt-1">{startedLessons} lekcji rozpoczętych</p>
             )}
-            {!stat.total && stat.label === "Learning Streak" && (
-              <p className="text-gray-600 text-sm mt-1">Keep it up!</p>
+            {!stat.total && stat.label === "Seria nauki" && (
+              <p className="text-gray-600 text-sm mt-1">Kontynuuj!</p>
             )}
           </div>
         ))}
@@ -138,9 +138,9 @@ export default function ProgressPage() {
        {/* Vocabulary Breakdown */}
        <div className="bg-white border border-gray-200 rounded-xl p-6 mb-8">
          <div className="flex justify-between items-center mb-6">
-           <h2 className="text-2xl font-bold text-gray-900">Vocabulary Breakdown</h2>
+           <h2 className="text-2xl font-bold text-gray-900">Podział słownictwa</h2>
            <div className="text-gray-700">
-             <span className="font-medium">{totalWords} words total</span>
+             <span className="font-medium">{totalWords} słów ogółem</span>
            </div>
          </div>
          <div className="flex flex-col md:flex-row gap-8">
@@ -164,9 +164,9 @@ export default function ProgressPage() {
                ></div>
              </div>
              <div className="flex justify-between text-sm text-gray-600">
-               <span>{Math.round((masteredWords / 10) * 100)}% mastered</span>
-               <span>{Math.round((learningWords / 10) * 100)}% learning</span>
-               <span>{Math.round((newWords / 10) * 100)}% new</span>
+               <span>{Math.round((masteredWords / 10) * 100)}% opanowane</span>
+               <span>{Math.round((learningWords / 10) * 100)}% w nauce</span>
+               <span>{Math.round((newWords / 10) * 100)}% nowe</span>
              </div>
            </div>
            {/* Legend and stats */}
@@ -174,22 +174,22 @@ export default function ProgressPage() {
              <div className="flex items-center">
                <div className="w-4 h-4 bg-green-600 rounded mr-3"></div>
                <div>
-                 <div className="font-medium text-gray-900">Mastered</div>
-                 <div className="text-gray-600 text-sm">{masteredWords} words · {vocabularyMasteryRate}% mastery rate</div>
+                 <div className="font-medium text-gray-900">Opanowane</div>
+                 <div className="text-gray-600 text-sm">{masteredWords} słów · {vocabularyMasteryRate}% opanowania</div>
                </div>
              </div>
              <div className="flex items-center">
                <div className="w-4 h-4 bg-yellow-500 rounded mr-3"></div>
                <div>
-                 <div className="font-medium text-gray-900">Learning</div>
-                 <div className="text-gray-600 text-sm">{learningWords} words · Practicing</div>
+                 <div className="font-medium text-gray-900">W nauce</div>
+                 <div className="text-gray-600 text-sm">{learningWords} słów · Ćwiczysz</div>
                </div>
              </div>
              <div className="flex items-center">
                <div className="w-4 h-4 bg-gray-400 rounded mr-3"></div>
                <div>
-                 <div className="font-medium text-gray-900">New</div>
-                 <div className="text-gray-600 text-sm">{newWords} words · Not attempted yet</div>
+                 <div className="font-medium text-gray-900">Nowe</div>
+                 <div className="text-gray-600 text-sm">{newWords} słów · Jeszcze nie ćwiczyłeś</div>
                </div>
              </div>
            </div>
@@ -200,10 +200,10 @@ export default function ProgressPage() {
         {/* Weekly Progress Chart */}
         <div className="lg:col-span-2 bg-white border border-gray-200 rounded-xl p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Weekly Activity</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Aktywność tygodniowa</h2>
             <div className="flex items-center text-gray-700">
               <Clock className="h-5 w-5 mr-2" />
-              <span>Total learning time: {formatLearningTime(totalLearningTime)}</span>
+              <span>Całkowity czas nauki: {formatLearningTime(totalLearningTime)}</span>
             </div>
           </div>
           <div className="flex items-end h-64 gap-2">
@@ -220,18 +220,18 @@ export default function ProgressPage() {
           </div>
           <div className="mt-8 flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-gray-900">Vocabulary Mastery Rate</h3>
-              <p className="text-gray-600">{vocabularyMasteryRate}% of words mastered</p>
+              <h3 className="font-bold text-gray-900">Wskaźnik opanowania słownictwa</h3>
+              <p className="text-gray-600">{vocabularyMasteryRate}% słów opanowanych</p>
             </div>
             <button className="text-red-600 font-semibold hover:text-red-700">
-              View Details →
+              Zobacz szczegóły →
             </button>
           </div>
         </div>
 
         {/* Achievements */}
         <div className="bg-white border border-gray-200 rounded-xl p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Achievements</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Ostatnie osiągnięcia</h2>
           <div className="space-y-6">
             {recentAchievements.map((achievement) => (
               <div key={achievement.title} className={`flex items-start p-4 rounded-lg ${
@@ -245,7 +245,7 @@ export default function ProgressPage() {
                 <div>
                   <h3 className={`font-bold ${achievement.unlocked ? 'text-gray-900' : 'text-gray-500'}`}>
                     {achievement.title}
-                    {!achievement.unlocked && <span className="text-gray-400 text-sm ml-2">(Locked)</span>}
+                    {!achievement.unlocked && <span className="text-gray-400 text-sm ml-2">(Zablokowane)</span>}
                   </h3>
                   <p className={`text-sm ${achievement.unlocked ? 'text-gray-600' : 'text-gray-500'}`}>
                     {achievement.description}
@@ -261,14 +261,14 @@ export default function ProgressPage() {
             ))}
           </div>
           <button className="w-full mt-8 text-center bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-lg transition-colors">
-            View All Achievements
+            Zobacz wszystkie osiągnięcia
           </button>
         </div>
       </div>
 
       {/* Lesson Progress */}
       <div className="bg-white border border-gray-200 rounded-xl p-6 mb-12">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Lesson Progress</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Postępy lekcji</h2>
         <div className="space-y-4">
           {lessons.map((lesson) => {
             const progress = lessonProgress[lesson.id];
@@ -293,8 +293,8 @@ export default function ProgressPage() {
                 <div className="flex items-center">
                   <div className="w-48 mr-6">
                     <div className="flex justify-between text-sm text-gray-600 mb-1">
-                      <span>Progress</span>
-                      <span>{isCompleted ? '100%' : isStarted ? 'In Progress' : 'Not Started'}</span>
+                      <span>Postęp</span>
+                      <span>{isCompleted ? '100%' : isStarted ? 'W trakcie' : 'Nie rozpoczęto'}</span>
                     </div>
                     <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                       <div 
@@ -306,7 +306,7 @@ export default function ProgressPage() {
                     </div>
                   </div>
                   <button className="text-red-600 font-semibold hover:text-red-700">
-                    {isCompleted ? 'Review' : isStarted ? 'Continue' : 'Start'}
+                    {isCompleted ? 'Przeglądaj' : isStarted ? 'Kontynuuj' : 'Rozpocznij'}
                   </button>
                 </div>
               </div>
@@ -319,14 +319,14 @@ export default function ProgressPage() {
       <div className="bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl p-8">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div>
-            <h2 className="text-2xl font-bold mb-4">Set Your Learning Goals</h2>
+            <h2 className="text-2xl font-bold mb-4">Ustaw swoje cele nauki</h2>
             <p className="max-w-2xl">
-              Define weekly targets to stay motivated and track your progress toward fluency.
-              {completedLessons === 0 && " Complete your first lesson to get started!"}
+              Zdefiniuj cotygodniowe cele, aby pozostać zmotywowanym i śledzić swoje postępy w dążeniu do biegłości.
+              {completedLessons === 0 && " Ukończ pierwszą lekcję, aby rozpocząć!"}
             </p>
           </div>
           <button className="mt-6 md:mt-0 bg-white text-red-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-            Set Goals
+            Ustaw cele
           </button>
         </div>
       </div>

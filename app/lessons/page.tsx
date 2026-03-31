@@ -34,9 +34,9 @@ export default function LessonsPage() {
   return (
     <div className="py-8">
       <div className="mb-10">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Polish Lessons</h1>
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">Polskie lekcje</h1>
         <p className="text-gray-700 text-lg">
-          Step-by-step lessons designed to build your Polish language skills from beginner to intermediate.
+          Krok po kroku lekcje zaprojektowane, aby budować Twoje umiejętności języka polskiego od początkującego do średniozaawansowanego.
         </p>
       </div>
 
@@ -52,15 +52,15 @@ export default function LessonsPage() {
               </div>
               {lesson.completed ? (
                 <span className="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">
-                  <CheckCircle className="inline h-4 w-4 mr-1" /> Completed
+                  <CheckCircle className="inline h-4 w-4 mr-1" /> Ukończone
                 </span>
               ) : lesson.started ? (
                 <span className="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
-                  In Progress
+                  W trakcie
                 </span>
               ) : (
                 <span className="bg-gray-100 text-gray-800 text-sm font-medium px-3 py-1 rounded-full">
-                  Not Started
+                  Nie rozpoczęto
                 </span>
               )}
             </div>
@@ -75,21 +75,21 @@ export default function LessonsPage() {
               onClick={() => handleLessonClick(lesson)}
               className="block w-full text-center bg-red-600 hover:bg-red-700 text-white font-medium py-3 rounded-lg transition-colors"
             >
-              {lesson.completed ? "Review Lesson" : lesson.started ? "Continue Lesson" : "Start Lesson"}
+              {lesson.completed ? "Przeglądaj lekcję" : lesson.started ? "Kontynuuj lekcję" : "Rozpocznij lekcję"}
             </Link>
           </div>
         ))}
       </div>
 
       <div className="bg-gray-50 border border-gray-200 rounded-xl p-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Track Your Progress</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Śledź swoje postępy</h2>
         <p className="text-gray-700 mb-6">
-          Complete lessons to unlock new content and track your improvement over time.
+          Ukończ lekcje, aby odblokować nowe treści i śledź swoje postępy w czasie.
         </p>
         <div className="flex items-center">
           <div className="flex-1">
             <div className="flex justify-between text-sm text-gray-600 mb-1">
-              <span>Overall Progress</span>
+              <span>Ogólny postęp</span>
               <span>{overallProgress}%</span>
             </div>
             <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
@@ -103,7 +103,7 @@ export default function LessonsPage() {
             href="/progress"
             className="ml-8 text-red-600 font-semibold hover:text-red-700"
           >
-            View Details →
+            Zobacz szczegóły →
           </Link>
         </div>
       </div>

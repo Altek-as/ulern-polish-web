@@ -9,9 +9,11 @@ interface FlashcardProps {
   word: VocabularyWord;
   onNext?: () => void;
   onPrevious?: () => void;
+  currentIndex?: number;
+  totalWords?: number;
 }
 
-export default function Flashcard({ word, onNext, onPrevious }: FlashcardProps) {
+export default function Flashcard({ word, onNext, onPrevious, currentIndex = 0, totalWords = 1 }: FlashcardProps) {
   const [flipped, setFlipped] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const { recordVocabularyAttempt, getWordMastery } = useProgressStore();
@@ -121,9 +123,12 @@ export default function Flashcard({ word, onNext, onPrevious }: FlashcardProps) 
       {/* Progress indicator */}
       <div className="mt-6 text-center text-gray-600 dark:text-gray-400">
         <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-          <div className="h-full bg-red-600 rounded-full w-1/3"></div>
+          <div
+            className="h-full bg-red-600 rounded-full transition-all duration-300"
+            style={{ width: `${totalWords > 1 ? ((currentIndex + 1) / totalWords) * 100 : 100}%` }}
+          ></div>
         </div>
-        <p className="mt-2 text-sm">Word 1 of 10</p>
+        <p className="mt-2 text-sm">Word {currentIndex + 1} of {totalWords}</p>
       </div>
 
       <style jsx>{`

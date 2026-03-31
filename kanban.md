@@ -7,7 +7,7 @@
 - [x] Cross-PC path fix (`process.cwd()`)
 - [x] Next.js ↔ Express API proxy wired
 - [x] Next.js frontend with lesson browser + exercises
-- [x] Auth endpoints (bcrypt + users.json)
+- [x] Auth endpoints (Supabase Auth)
 - [x] Lesson → VR context injection
 - [x] AI status badge in header
 - [x] `npm run dev` starts both servers
@@ -16,7 +16,8 @@
 
 ## 🚧 In Progress
 
-- [x] Replace `users.json` + bcryptjs auth with Supabase Auth (code complete, awaiting Supabase project setup)
+- [x] Supabase Auth migration — **code complete, awaiting Supabase project credentials in `.env`**
+- [x] Turbopack panic (`nul` reserved Windows filename) — **fixed** (file deleted, `.next` cache cleared)
 
 ---
 
@@ -69,3 +70,20 @@
 ---
 
 _Last updated: 2026-03-30_
+
+---
+
+## Changelog — 2026-03-30
+
+### Fixed
+- **`nul` Windows reserved filename in project root** — caused Turbopack panic (OS error 1: "Incorrect function") on every Next.js route. File deleted via `\\?\` namespace prefix; `.next` cache cleared.
+- Supabase credentials remain placeholder — **still needs real values from Supabase dashboard** before auth will function.
+
+### Added
+- **Lessons 7–12** — Days & Time, Family, Colours & Adjectives, Shopping & Clothing, Travel & Transport, Weather & Seasons (content + vocab + exercises)
+- **Interactive exercise UX** — lesson detail page exercises now require user to select/answer before revealing correct answer; multiple choice shows per-option correct/incorrect feedback
+- **`AIStatusBadge` component** — created missing component imported in `app/layout.tsx`
+
+### Known Issues (pre-existing)
+- `lib/store/auth.ts` — null-safety issues on Supabase auth responses — **Fixed** (added null guards on `data.user` in login and register; TS now clean)
+- `app/layout.tsx` — duplicate `lang="en"` (was noted, not yet fixed)

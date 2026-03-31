@@ -18,45 +18,50 @@ export default function ExercisesPage() {
   // Memoize the words passed to MultipleChoiceQuiz to prevent unnecessary re-renders
   const quizWords = useMemo(() => allVocabulary.slice(0, 10), [allVocabulary]);
 
+  // Derive exercise counts from actual lesson data
+  const multipleChoiceCount = lessons.flatMap(l => l.exercises).filter(e => e.type === 'multiple-choice').length;
+  const fillBlankCount = lessons.flatMap(l => l.exercises).filter(e => e.type === 'fill-blank').length;
+  const matchingCount = lessons.flatMap(l => l.exercises).filter(e => e.type === 'matching').length;
+
   const exerciseTypes = [
     {
       icon: CreditCard,
-      title: "Flashcards",
-      description: "Learn vocabulary with interactive flip cards.",
+      title: "Fiszki",
+      description: "Ucz się słownictwa dzięki interaktywnym kartom.",
       count: allVocabulary.length,
       color: "bg-blue-100 text-blue-600",
       type: 'flashcard' as const,
     },
     {
       icon: Brain,
-      title: "Multiple Choice",
-      description: "Test your knowledge with Polish grammar questions.",
-      count: 85,
+      title: "Wielokrotny wybór",
+      description: "Sprawdź swoją wiedzę z gramatyki polskiej.",
+      count: multipleChoiceCount,
       color: "bg-green-100 text-green-600",
       type: 'quiz' as const,
     },
     {
       icon: Target,
-      title: "Listening Practice",
-      description: "Improve comprehension with audio exercises.",
-      count: 42,
+      title: "Ćwiczenia słuchowe",
+      description: "Popraw rozumienie dzięki ćwiczeniom audio.",
+      count: matchingCount,
       color: "bg-purple-100 text-purple-600",
       type: 'flashcard' as const,
     },
     {
       icon: BarChart,
-      title: "Fill in the Blanks",
-      description: "Complete sentences with missing words.",
-      count: 67,
+      title: "Uzupełnij luki",
+      description: "Uzupełnij zdania brakującymi słowami.",
+      count: fillBlankCount,
       color: "bg-orange-100 text-orange-600",
       type: 'quiz' as const,
     },
   ];
 
   const recentExercises = [
-    { id: 1, title: "Basic Greetings", type: "Flashcards", score: "95%", date: "Today" },
-    { id: 2, title: "Present Tense Conjugation", type: "Multiple Choice", score: "78%", date: "Yesterday" },
-    { id: 3, title: "Food Vocabulary", type: "Fill in the Blanks", score: "88%", date: "2 days ago" },
+    { id: 1, title: "Podstawowe pozdrowienia", type: "Fiszki", score: "95%", date: "Dziś" },
+    { id: 2, title: "Odmiana czasownika w czasie teraźniejszym", type: "Wielokrotny wybór", score: "78%", date: "Wczoraj" },
+    { id: 3, title: "Słownictwo jedzenia", type: "Uzupełnij luki", score: "88%", date: "2 dni temu" },
   ];
 
   const currentWord = allVocabulary[currentWordIndex] || allVocabulary[0];
@@ -77,9 +82,9 @@ export default function ExercisesPage() {
   return (
     <div className="py-8">
       <div className="mb-10">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Vocabulary Exercises</h1>
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">Ćwiczenia słownictwa</h1>
         <p className="text-gray-700 text-lg">
-          Practice and reinforce your Polish language skills with interactive exercises tailored to your level.
+          Ćwicz i utwierdniaj swoje umiejętności języka polskiego dzięki interaktywnym ćwiczeniom dopasowanym do Twojego poziomu.
         </p>
       </div>
 
@@ -95,7 +100,7 @@ export default function ExercisesPage() {
             <h3 className="text-xl font-bold text-gray-900 mb-3">{exercise.title}</h3>
             <p className="text-gray-700 mb-4">{exercise.description}</p>
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">{exercise.count} exercises</span>
+              <span className="text-gray-600">{exercise.count} ćwiczeń</span>
               <button
                 onClick={() => setActiveTab(exercise.type)}
                 className="text-red-600 font-semibold hover:text-red-700"
@@ -111,8 +116,8 @@ export default function ExercisesPage() {
       <div className="mb-12">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900">Try It Now</h2>
-            <p className="text-gray-700">Practice with interactive exercises using real vocabulary from your lessons.</p>
+            <h2 className="text-3xl font-bold text-gray-900">Wypróbuj teraz</h2>
+            <p className="text-gray-700">Ćwicz z interaktywnymi ćwiczeniami używając prawdziwego słownictwa z lekcji.</p>
           </div>
           <div className="flex space-x-4">
             <button
@@ -123,7 +128,7 @@ export default function ExercisesPage() {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              Flashcard Mode
+              Tryb fiszek
             </button>
             <button
               onClick={() => setActiveTab('quiz')}
@@ -133,7 +138,7 @@ export default function ExercisesPage() {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              Quiz Mode
+              Tryb quizu
             </button>
             <button
               onClick={handleRestart}
@@ -149,16 +154,18 @@ export default function ExercisesPage() {
             {activeTab === 'flashcard' && currentWord && (
               <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
                 <div className="text-center mb-8">
-                  <h3 className="text-2xl font-bold text-gray-900">Flashcard Exercise</h3>
-                  <p className="text-gray-700">Click the card to flip and reveal the translation</p>
+                  <h3 className="text-2xl font-bold text-gray-900">Ćwiczenie z fiszkami</h3>
+                  <p className="text-gray-700">Kliknij kartę, aby ją odwrócić i zobaczyć tłumaczenie</p>
                 </div>
                 <Flashcard
                   word={currentWord}
                   onNext={handleNextWord}
                   onPrevious={handlePreviousWord}
+                  currentIndex={currentWordIndex}
+                  totalWords={allVocabulary.length}
                 />
                 <div className="mt-8 text-center text-gray-600">
-                  <p>Word {currentWordIndex + 1} of {allVocabulary.length} • {isCurrentWordMastered ? 'Mastered' : 'Learning'}</p>
+                  <p>Słowo {currentWordIndex + 1} z {allVocabulary.length} • {isCurrentWordMastered ? 'Opanowane' : 'Uczysz się'}</p>
                 </div>
               </div>
             )}
@@ -166,8 +173,8 @@ export default function ExercisesPage() {
             {activeTab === 'quiz' && allVocabulary.length > 0 && (
               <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
                 <div className="text-center mb-8">
-                  <h3 className="text-2xl font-bold text-gray-900">Multiple Choice Quiz</h3>
-                  <p className="text-gray-700">Test your knowledge of Polish vocabulary</p>
+                  <h3 className="text-2xl font-bold text-gray-900">Quiz wielokrotnego wyboru</h3>
+                  <p className="text-gray-700">Sprawdź swoją wiedzę ze słownictwa polskiego</p>
                 </div>
                 <MultipleChoiceQuiz words={quizWords} />
               </div>
@@ -177,7 +184,7 @@ export default function ExercisesPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Activity</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Ostatnia aktywność</h2>
           <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
             {recentExercises.map((exercise) => (
               <div
@@ -198,33 +205,33 @@ export default function ExercisesPage() {
         </div>
 
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Exercise Tips</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Wskazówki do ćwiczeń</h2>
           <div className="bg-red-50 border border-red-200 rounded-xl p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Maximize Your Learning</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Zmaksymalizuj swoją naukę</h3>
             <ul className="space-y-4">
               <li className="flex items-start">
                 <div className="bg-red-100 rounded-full p-1 mr-3 mt-1">
                   <div className="h-2 w-2 bg-red-600 rounded-full"></div>
                 </div>
-                <span className="text-gray-800">Practice daily for 15-20 minutes</span>
+                <span className="text-gray-800">Ćwicz codziennie przez 15-20 minut</span>
               </li>
               <li className="flex items-start">
                 <div className="bg-red-100 rounded-full p-1 mr-3 mt-1">
                   <div className="h-2 w-2 bg-red-600 rounded-full"></div>
                 </div>
-                <span className="text-gray-800">Review difficult exercises regularly</span>
+                <span className="text-gray-800">Regularnie powtarzaj trudne ćwiczenia</span>
               </li>
               <li className="flex items-start">
                 <div className="bg-red-100 rounded-full p-1 mr-3 mt-1">
                   <div className="h-2 w-2 bg-red-600 rounded-full"></div>
                 </div>
-                <span className="text-gray-800">Use flashcards for vocabulary retention</span>
+                <span className="text-gray-800">Używaj fiszek do utrwalania słownictwa</span>
               </li>
               <li className="flex items-start">
                 <div className="bg-red-100 rounded-full p-1 mr-3 mt-1">
                   <div className="h-2 w-2 bg-red-600 rounded-full"></div>
                 </div>
-                <span className="text-gray-800">Focus on pronunciation with listening exercises</span>
+                <span className="text-gray-800">Skup się na wymowie dzięki ćwiczeniom słuchowym</span>
               </li>
             </ul>
           </div>

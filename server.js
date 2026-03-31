@@ -222,7 +222,7 @@ app.post('/api/auth/register', limiter, async (req, res) => {
 
     res.json({
       success: true,
-      user: { id: data.user.id, email: data.user.email, name: data.user.user_metadata.name }
+      user: { id: data.user.id, email: data.user.email, name: data.user.user_metadata.name, createdAt: data.user.created_at }
     });
   } catch (error) {
     console.error('[uLern] /api/auth/register error:', error.message);
@@ -244,7 +244,7 @@ app.post('/api/auth/login', limiter, async (req, res) => {
 
     res.json({
       success: true,
-      user: { id: data.user.id, email: data.user.email, name: data.user.user_metadata.name }
+      user: { id: data.user.id, email: data.user.email, name: data.user.user_metadata.name, createdAt: data.user.created_at }
     });
   } catch (error) {
     console.error('[uLern] /api/auth/login error:', error.message);

@@ -83,7 +83,7 @@ Either create the missing assets, or remove the texture swapper and keep the geo
 | 1 | `__dirname` used instead of `process.cwd()` — breaks cross-PC | `server.js` |
 | 2 | No missing avatar image files — texture swap silently fails | `public/app.js` |
 | 3 | Next.js app has **zero connection** to the AI backend — two separate apps pretending to be one | whole repo |
-| 4 | Auth is entirely mock (localStorage only) — no real backend auth | `lib/store/auth.ts` |
+| 4 | ~~Auth is entirely mock (localStorage only)~~ → **Supabase Auth migration complete** — code done, needs real Supabase credentials | `lib/store/auth.ts`, `server.js` |
 | 5 | API keys + Discord webhook **in plaintext `.env`** committed to git (`.env.example` exists but `.env` is not fully gitignored) | `.env` |
 
 ### Moderate
@@ -116,7 +116,7 @@ Either create the missing assets, or remove the texture swapper and keep the geo
 ### Phase 2: Unite the Two Apps
 - [x] Next.js app should **call the Express backend** (`http://localhost:5000/api/chat`) for AI features
 - [x] Add API proxy in Next.js config so `/api/chat` → Express (avoids CORS in production)
-- [x] Wire up login/register to a real auth endpoint on Express (bcryptjs + users.json)
+- [x] Wire up login/register to Supabase Auth on Express backend
 - [x] Connect lesson selection → triggers that lesson's topic in the VR conversation engine
 
 ### Phase 3: Real Lesson Content
