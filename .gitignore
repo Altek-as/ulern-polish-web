@@ -8,7 +8,9 @@
 # env files — NEVER commit these (must be FIRST to ensure they override everything)
 .env
 .env.local
-.env.*
+.env.* 
+# Exception: .env.example IS tracked — it serves as a project template for new developers
+!.env.example
 
 # dependencies
 /node_modules

@@ -2,7 +2,7 @@
   "framework": "nextjs",
   "buildCommand": "npm run build",
   "devCommand": "npm run dev:frontend",
-  "installCommand": "npm install",
+  "installCommand": "npm install --legacy-peer-deps",
   "regions": ["iad1"],
   "rewrites": [
     {
@@ -15,7 +15,7 @@
       "source": "/api/:path*",
       "headers": [
         { "key": "Cache-Control", "value": "no-store" },
-        { "key": "Access-Control-Allow-Origin", "value": "https://YOUR_VERCEL_APP.vercel.app" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
         { "key": "Access-Control-Allow-Methods", "value": "GET, POST, OPTIONS" },
         { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" }
       ]
