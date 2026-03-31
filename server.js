@@ -319,10 +319,21 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
       // Grant Pro access — user identified by email in session metadata or customer details
       const userEmail = session?.metadata?.userEmail || session?.customer_details?.email;
       if (userEmail) {
+        // Determine tier from price ID (monthly vs annual)
+        const priceId = session?.line_items?.data?.[0]?.price?.id;
+        const monthlyPriceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY;
+        const annualPriceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_ANNUAL;
+        let tier = 'pro_monthly'; // default
+        if (annualPriceId && priceId === annualPriceId) tier = 'pro_annual';
+        else if (monthlyPriceId && priceId !== monthlyPriceId) {
+          // Price ID doesn't match monthly either — log it and use monthly as fallback
+          console.warn(`[Stripe] Unknown price ID "${priceId}" — defaulting to pro_monthly`);
+        }
+
         const { error } = await supabase
           .from('profiles')
           .update({
-            subscription_tier: 'pro',
+            subscription_tier: tier,
             subscription_status: 'active',
             stripe_customer_id: session.customer,
             stripe_subscription_id: session.subscription,
@@ -415,16 +426,50 @@ app.post('/api/create-checkout-session', limiter, async (req, res) => {
   }
 });
 
-// GET /api/subscription-status — Stub: return mock subscription data
+// GET /api/subscription-status — Return current user's subscription tier from Supabase
+// Requires Authorization: Bearer <supabase_access_token> header
 app.get('/api/subscription-status', limiter, async (req, res) => {
-  // TODO: Replace with real Supabase lookup once user auth is integrated
-  // const userId = req.headers['x-user-id'];
-  res.json({
-    subscription: 'free',
-    plan: 'Free',
-    expiresAt: null,
-    message: 'Stub — integrate with Supabase user records once auth is wired up',
-  });
+  try {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Missing or invalid Authorization header' });
+    }
+    const token = authHeader.slice(7); // strip 'Bearer '
+
+    // Verify the Supabase JWT and get user
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !user) {
+      return res.status(401).json({ error: 'Invalid or expired token' });
+    }
+
+    // Look up subscription info in profiles table
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('subscription_tier, subscription_status, stripe_customer_id, stripe_subscription_id')
+      .eq('email', user.email)
+      .single();
+
+    if (profileError && profileError.code !== 'PGRST116') {
+      // PGRST116 = no rows returned — treat as free tier
+      console.error('[uLern] /api/subscription-status profile lookup error:', profileError.message);
+    }
+
+    const tier = profile?.subscription_tier || 'free';
+    const status = profile?.subscription_status || 'active';
+
+    const planNames = { free: 'Free', pro_monthly: 'Pro Monthly', pro_annual: 'Pro Annual' };
+
+    res.json({
+      subscription: tier,
+      plan: planNames[tier] || 'Free',
+      status,
+      stripeCustomerId: profile?.stripe_customer_id || null,
+      stripeSubscriptionId: profile?.stripe_subscription_id || null,
+    });
+  } catch (err) {
+    console.error('[uLern] /api/subscription-status error:', err.message);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // --- Serve static files from public/ ---
