@@ -193,7 +193,7 @@ export const lessons: Lesson[] = [
     difficulty: 'beginner',
     completed: false,
     started: true,
-    visualTheme: 'polish_classroom',
+    visualTheme: 'market_square',
     sections: [
       {
         id: 1,
@@ -270,7 +270,7 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     completed: false,
     started: false,
-    visualTheme: 'polish_classroom',
+    visualTheme: 'home_study',
     sections: [
       {
         id: 1,
@@ -340,7 +340,7 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     completed: false,
     started: false,
-    visualTheme: 'polish_classroom',
+    visualTheme: 'traditional_restaurant',
     sections: [
       {
         id: 1,
@@ -410,7 +410,7 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     completed: false,
     started: false,
-    visualTheme: 'polish_classroom',
+    visualTheme: 'city_street_intersection',
     sections: [
       {
         id: 1,
@@ -480,7 +480,7 @@ export const lessons: Lesson[] = [
     difficulty: 'beginner',
     completed: false,
     started: false,
-    visualTheme: 'polish_classroom',
+    visualTheme: 'clock_tower_square',
     sections: [
       {
         id: 1,
@@ -565,7 +565,7 @@ export const lessons: Lesson[] = [
     difficulty: 'beginner',
     completed: false,
     started: false,
-    visualTheme: 'polish_classroom',
+    visualTheme: 'home_living_room',
     sections: [
       {
         id: 1,
@@ -650,7 +650,7 @@ export const lessons: Lesson[] = [
     difficulty: 'beginner',
     completed: false,
     started: false,
-    visualTheme: 'polish_classroom',
+    visualTheme: 'art_studio',
     sections: [
       {
         id: 1,
@@ -735,7 +735,7 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     completed: false,
     started: false,
-    visualTheme: 'polish_classroom',
+    visualTheme: 'boutique_shop',
     sections: [
       {
         id: 1,
@@ -820,7 +820,7 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     completed: false,
     started: false,
-    visualTheme: 'polish_classroom',
+    visualTheme: 'train_station_platform',
     sections: [
       {
         id: 1,
@@ -905,7 +905,7 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     completed: false,
     started: false,
-    visualTheme: 'polish_classroom',
+    visualTheme: 'city_park_weather',
     sections: [
       {
         id: 1,
@@ -990,7 +990,7 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     completed: false,
     started: false,
-    visualTheme: 'polish_classroom',
+    visualTheme: 'modern_clinic',
     sections: [
       {
         id: 1,
@@ -1075,7 +1075,7 @@ export const lessons: Lesson[] = [
     difficulty: 'advanced',
     completed: false,
     started: false,
-    visualTheme: 'polish_classroom',
+    visualTheme: 'university_lecture_hall',
     sections: [
       {
         id: 1,
@@ -1160,7 +1160,7 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     completed: false,
     started: false,
-    visualTheme: 'polish_classroom',
+    visualTheme: 'modern_home_office',
     sections: [
       {
         id: 1,
@@ -1245,7 +1245,7 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     completed: false,
     started: false,
-    visualTheme: 'polish_classroom',
+    visualTheme: 'smartphone_call',
     sections: [
       {
         id: 1,
@@ -1330,7 +1330,7 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     completed: false,
     started: false,
-    visualTheme: 'polish_classroom',
+    visualTheme: 'modern_office_building',
     sections: [
       {
         id: 1,
