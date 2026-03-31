@@ -315,9 +315,29 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
     case 'checkout.session.completed': {
       const session = event.data.object;
       console.log('[Stripe] Checkout completed:', session.id);
-      // TODO: Grant premium access to user (update Supabase / user record)
-      // const customerId = session.customer;
-      // const userId = session.metadata?.userId;
+
+      // Grant Pro access — user identified by email in session metadata or customer details
+      const userEmail = session?.metadata?.userEmail || session?.customer_details?.email;
+      if (userEmail) {
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            subscription_tier: 'pro',
+            subscription_status: 'active',
+            stripe_customer_id: session.customer,
+            stripe_subscription_id: session.subscription,
+            updated_at: new Date().toISOString()
+          })
+          .eq('email', userEmail);
+
+        if (error) {
+          console.error('[Stripe] Failed to grant Pro access:', error.message);
+        } else {
+          console.log(`[Stripe] Pro access granted for: ${userEmail}`);
+        }
+      } else {
+        console.warn('[Stripe] No user email found in checkout session — cannot grant Pro access');
+      }
       break;
     }
     case 'payment_intent.succeeded': {
@@ -333,7 +353,26 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
     case 'customer.subscription.deleted': {
       const subscription = event.data.object;
       console.log('[Stripe] Subscription cancelled:', subscription.id);
-      // TODO: Revoke premium access
+
+      // Revoke Pro access — look up user by stripe_customer_id or stripe_subscription_id
+      const customerId = subscription?.customer;
+      if (customerId) {
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            subscription_tier: 'free',
+            subscription_status: 'cancelled',
+            stripe_subscription_id: null,
+            updated_at: new Date().toISOString()
+          })
+          .eq('stripe_customer_id', customerId);
+
+        if (error) {
+          console.error('[Stripe] Failed to revoke Pro access:', error.message);
+        } else {
+          console.log(`[Stripe] Pro access revoked for customer: ${customerId}`);
+        }
+      }
       break;
     }
     default:

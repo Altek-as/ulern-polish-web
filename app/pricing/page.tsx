@@ -37,7 +37,7 @@ const TIERS = [
       'Priority support',
       'New lessons every week',
     ],
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PRO_MONTHLY_PRICE_ID || 'price_monthly_placeholder',
+    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY || 'price_monthly_placeholder',
     highlight: true,
   },
   {
@@ -54,7 +54,7 @@ const TIERS = [
       'Personalized learning path',
       'Certificate of completion',
     ],
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PRO_ANNUAL_PRICE_ID || 'price_annual_placeholder',
+    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_ANNUAL || 'price_annual_placeholder',
     highlight: false,
   },
 ];
