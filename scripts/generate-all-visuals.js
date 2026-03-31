@@ -25,6 +25,7 @@ require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const { generateLessonVisual, getLessonTheme } = require('../lib/comfyui-client.js');
+const { LESSON_THEMES } = require('../lib/lesson-themes.js');
 
 const OUTPUT_DIR = path.join(__dirname, '..', 'outputs', 'lesson-visuals');
 const MANIFEST_PATH = path.join(__dirname, '..', 'outputs', 'lesson-visuals-manifest.json');

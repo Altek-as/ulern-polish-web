@@ -1415,7 +1415,7 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     completed: false,
     started: false,
-    visualTheme: 'polish_classroom',
+    visualTheme: 'home_apartment',
     sections: [
       {
         id: 1,
@@ -1500,7 +1500,7 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     completed: false,
     started: false,
-    visualTheme: 'polish_classroom',
+    visualTheme: 'polish_kitchen',
     sections: [
       {
         id: 1,
@@ -1585,7 +1585,7 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     completed: false,
     started: false,
-    visualTheme: 'polish_classroom',
+    visualTheme: 'polish_wigilia',
     sections: [
       {
         id: 1,

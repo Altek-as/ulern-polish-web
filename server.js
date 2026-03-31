@@ -134,6 +134,7 @@ app.get('/api/health', (req, res) => {
     openrouter: !!process.env.OPENROUTER_API_KEY,
     elevenlabs: !!process.env.ELEVENLABS_API_KEY,
     whisper: !!process.env.RUNPOD_WHISPER_API_URL,
+    comfyui: !!process.env.RUNPOD_COMFY_API_KEY,
     supabase: !!process.env.SUPABASE_URL
   });
 });
@@ -241,7 +242,7 @@ app.post('/api/auth/register', limiter, async (req, res) => {
 
 // POST /api/generate-lesson-visual — ComfyUI RunPod lesson visuals
 const { LESSON_THEMES } = require('./lib/lesson-themes.js');
-const { submitComfyUIJob, pollComfyUIJob } = require('./lib/comfyui-client.js');
+const { generateLessonVisual } = require('./lib/comfyui-client.js');
 
 app.post('/api/generate-lesson-visual', limiter, async (req, res) => {
   try {
@@ -251,7 +252,7 @@ app.post('/api/generate-lesson-visual', limiter, async (req, res) => {
     const validTypes = ['scene', 'avatar', 'both'];
     const visualType = validTypes.includes(type) ? type : 'both';
 
-    const result = await generateLessonVisualCJS(Number(lessonId), visualType);
+    const result = await generateLessonVisual(Number(lessonId), visualType);
     res.json({ success: true, lessonId, ...result });
   } catch (error) {
     console.error('[uLern] /api/generate-lesson-visual error:', error.message);
@@ -265,12 +266,6 @@ app.get('/api/lesson-theme/:id', (req, res) => {
   if (!theme) return res.status(404).json({ error: 'Lesson theme not found' });
   res.json({ lessonId: Number(req.params.id), ...theme });
 });
-
-// CJS wrapper — calls the ESM comfyui-client via dynamic import
-async function generateLessonVisualCJS(lessonId, type) {
-  const { generateLessonVisual } = await import('./lib/comfyui-client.js');
-  return generateLessonVisual(lessonId, type);
-}
 
 // POST /api/auth/login — Supabase Auth
 app.post('/api/auth/login', limiter, async (req, res) => {
