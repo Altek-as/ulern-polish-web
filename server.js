@@ -11,6 +11,52 @@ const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 const Stripe = require('stripe');
 
+// --- Startup credential validation ---
+const REQUIRED = [
+  'OPENROUTER_API_KEY',
+  'ELEVENLABS_API_KEY',
+];
+const RECOMMENDED = [
+  'SUPABASE_URL',
+  'NEXT_PUBLIC_SUPABASE_URL',
+  'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+  'SUPABASE_SERVICE_ROLE_KEY',
+  'RUNPOD_WHISPER_API_URL',
+  'RUNPOD_WHISPER_API_KEY',
+  'RUNPOD_COMFY_API_KEY',
+  'STRIPE_SECRET_KEY',
+  'STRIPE_WEBHOOK_SECRET',
+  'NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY',
+  'NEXT_PUBLIC_STRIPE_PRICE_PRO_ANNUAL',
+];
+const URGENT = [
+  'Discord bot token in .env — ROTATE IMMEDIATELY at https://discord.com/developers/applications',
+];
+
+const missing = REQUIRED.filter(k => !process.env[k]);
+if (missing.length) {
+  console.error('\n[STARTUP] Missing required env vars:');
+  missing.forEach(k => console.error(`  ✗ ${k}`));
+  console.error('\n  Fill these in .env before starting the server.\n');
+  process.exit(1);
+}
+
+const notSet = RECOMMENDED.filter(k => !process.env[k] || process.env[k].includes('placeholder'));
+if (notSet.length) {
+  console.warn('\n[STARTUP] Recommended env vars not set or still contain placeholder values:');
+  notSet.forEach(k => console.warn(`  ○ ${k}`));
+  console.warn('  The corresponding features will be unavailable until filled in.\n');
+}
+
+if (process.env.DISCORD_BOT_TOKEN) {
+  console.warn('\n[STARTUP] ⚠️  URGENT: Discord bot token is present in .env.');
+  console.warn('  This token has likely been synced to OneDrive/SharePoint and is exposed.');
+  console.warn('  Rotate it immediately at: https://discord.com/developers/applications');
+  console.warn('  Then update .env with the new token.\n');
+}
+
+console.log('[STARTUP] ✓ Required env vars present\n');
+
 // Initialize Stripe (uses STRIPE_SECRET_KEY from .env)
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
   apiVersion: '2025-02-24.acacia',
@@ -18,8 +64,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder'
 
 // Supabase server-side client (uses service role key — never expose to client)
 const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  process.env.SUPABASE_URL || 'https://placeholder.supabase.co',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder'
 );
 
 const app = express();
