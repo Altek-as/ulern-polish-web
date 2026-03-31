@@ -248,12 +248,114 @@ Zawsze odpowiadaj tylko po polsku.`;
         });
     }
 
-    // --- Avatar State ---
-    // Avatar uses A-Frame geometric primitives (no texture files needed).
-    // State transitions are handled visually via the state machine below.
+    // --- Lesson Context Helper ---
+    // Builds lesson-specific AI prompts using selected lesson from sessionStorage
+    function getLessonContext() {
+        try {
+            const stored = sessionStorage.getItem('ulern_selected_lesson');
+            return stored ? JSON.parse(stored) : null;
+        } catch { return null; }
+    }
+    
+    function buildLessonPrompt(basePrompt) {
+        const lesson = getLessonContext();
+        if (!lesson) return basePrompt;
+        return `${basePrompt} Poruszaj temat: "${lesson.title}".`;
+    }
+    
+    /**
+     * Checks if key vocabulary words from the current lesson appear in the user's speech.
+     * Returns an array of matched words for positive feedback.
+     */
+    function checkVocabularyUse(transcript) {
+        const lesson = getLessonContext();
+        if (!lesson || !lesson.vocabulary) return [];
+        
+        const lower = transcript.toLowerCase();
+        const matched = [];
+        
+        // Check top 3 vocabulary words from the lesson
+        const vocabToCheck = (lesson.vocabulary || []).slice(0, 4);
+        for (const word of vocabToCheck) {
+            const polish = word.polish.toLowerCase();
+            // Check Polish word (normalised: remove diacritics for matching)
+            const normalPolish = polish.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            const normalTranscript = lower.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            if (normalTranscript.includes(normalPolish) || lower.includes(polish)) {
+                matched.push(word.polish);
+            }
+        }
+        return matched;
+    }
+    
+    let blinkInterval = null;
+    let isSpeaking = false;
+    
+    // Eye element references (set on init)
+    let leftEyeLid = null;
+    let rightEyeLid = null;
+    
+    function initAvatarAnimations() {
+        // Find or create blink lids
+        const avatarEl = avatar;
+        if (!avatarEl) return;
+        
+        // Periodic blink every 3-5 seconds
+        function scheduleNextBlink() {
+            const delay = 3000 + Math.random() * 2000;
+            blinkInterval = setTimeout(() => {
+                if (!isSpeaking) doBlink();
+                scheduleNextBlink();
+            }, delay);
+        }
+        scheduleNextBlink();
+    }
+    
+    function doBlink() {
+        if (!avatar) return;
+        const lids = avatar.querySelectorAll('.eye-lid');
+        lids.forEach(lid => {
+            lid.setAttribute('scale', '1 0.1 1');
+            setTimeout(() => lid.setAttribute('scale', '1 1 1'), 120);
+        });
+    }
+    
     function updateAvatarState(state) {
-        // Future: animate avatar based on state (e.g., eye color, mouth shape)
-        // Currently a no-op — geometric avatar is self-sufficient
+        if (!avatar) return;
+        
+        const mouth = avatar.querySelector('#avatarMouth');
+        
+        switch (state) {
+            case 'responding':
+            case 'speaking':
+                // Open/wide mouth when speaking
+                isSpeaking = true;
+                if (mouth) {
+                    mouth.setAttribute('width', 0.18);
+                    mouth.setAttribute('height', 0.06);
+                    mouth.setAttribute('depth', 0.04);
+                }
+                // Subtle body bounce
+                avatar.setAttribute('animation', {
+                    property: 'position',
+                    to: '0 1.65 -3',
+                    dur: 200,
+                    easing: 'easeOutQuad'
+                });
+                setTimeout(() => {
+                    if (avatar) avatar.setAttribute('position', '0 1.6 -3');
+                }, 300);
+                break;
+            default:
+                // Neutral mouth
+                isSpeaking = false;
+                if (mouth) {
+                    mouth.setAttribute('width', 0.15);
+                    mouth.setAttribute('height', 0.03);
+                    mouth.setAttribute('depth', 0.02);
+                }
+                break;
+        }
     }
 
     // --- State Machine ---
@@ -264,9 +366,9 @@ Zawsze odpowiadaj tylko po polsku.`;
 
         switch (newState) {
             case 'greeting':
-                // Get AI greeting
+                // Get AI greeting — uses lesson context if available
                 if (statusText) statusText.setAttribute('value', 'Generowanie powitania...');
-                callChatAPI('Powiedz mi krótkie powitanie, jak polski nauczyciel. Tylko 1-2 zdania.')
+                callChatAPI(buildLessonPrompt('Powiedz mi krótkie powitanie, jak polski nauczyciel. Tylko 1-2 zdania.'))
                     .then(greeting => {
                         pendingResponse = greeting;
                         transitionToState('responding');
@@ -279,7 +381,7 @@ Zawsze odpowiadaj tylko po polsku.`;
 
             case 'question':
                 if (statusText) statusText.setAttribute('value', 'Zadaję pytanie...');
-                callChatAPI('Zadaj użytkownikowi proste pytanie po polsku, żeby rozpocząć rozmowę. Tylko 1 zdanie.')
+                callChatAPI(buildLessonPrompt('Zadaj użytkownikowi proste pytanie po polsku, żeby rozpocząć rozmowę. Tylko 1 zdanie.'))
                     .then(question => {
                         pendingResponse = question;
                         transitionToState('responding');
@@ -333,6 +435,19 @@ Zawsze odpowiadaj tylko po polsku.`;
     function processUserInput(transcript) {
         console.log('[uLern] Recognized:', transcript);
         if (sttText) sttText.setAttribute('value', 'User: ' + transcript);
+
+        // Vocabulary pronunciation feedback — check if lesson words were used
+        const vocabFeedback = checkVocabularyUse(transcript);
+        if (vocabFeedback.length > 0 && hintText) {
+            hintText.setAttribute('value', '✓ Użyłeś: ' + vocabFeedback.join(', '));
+            hintText.setAttribute('color', '#00ff88');
+            setTimeout(() => {
+                if (hintText) {
+                    hintText.setAttribute('value', '');
+                    hintText.removeAttribute('color');
+                }
+            }, 3000);
+        }
 
         // Check for goodbye
         const lower = transcript.toLowerCase();
@@ -409,6 +524,7 @@ Zawsze odpowiadaj tylko po polsku.`;
         if (statusText) statusText.setAttribute('value', 'Gotowy! Spójrz na awatar.');
 
         setupGazeListeners();
+        initAvatarAnimations();
         setButtonLoading(false);
     }
 

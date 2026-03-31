@@ -49,6 +49,7 @@ export default function LessonsPage() {
       id: lesson.id,
       title: lesson.title,
       description: lesson.description,
+      vocabulary: lesson.vocabulary || [],
     }));
   }
 

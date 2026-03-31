@@ -53,13 +53,16 @@
             <a-sphere radius="0.4" position="0 0.6 0" color="#4a90e2"></a-sphere>
             <!-- Body -->
             <a-cylinder radius="0.25" height="1" position="0 -0.2 0" color="#2d5a87"></a-cylinder>
-            <!-- Eyes -->
+            <!-- Eyes (white + pupil + blink lid) -->
             <a-sphere radius="0.08" position="-0.12 0.65 0.32" color="white"></a-sphere>
             <a-sphere radius="0.08" position="0.12 0.65 0.32" color="white"></a-sphere>
             <a-sphere radius="0.04" position="-0.12 0.65 0.38" color="#1a1a2e"></a-sphere>
             <a-sphere radius="0.04" position="0.12 0.65 0.38" color="#1a1a2e"></a-sphere>
-            <!-- Mouth -->
-            <a-box width="0.15" height="0.03" depth="0.02" position="0 0.48 0.35" color="#ff6b6b"></a-box>
+            <!-- Blink lids (thin discs that scale to cover eyes) -->
+            <a-sphere class="eye-lid" radius="0.085" position="-0.12 0.65 0.30" scale="1 1 1" color="#4a90e2"></a-sphere>
+            <a-sphere class="eye-lid" radius="0.085" position="0.12 0.65 0.30" scale="1 1 1" color="#4a90e2"></a-sphere>
+            <!-- Mouth (animated on speak) -->
+            <a-box id="avatarMouth" width="0.15" height="0.03" depth="0.02" position="0 0.48 0.35" color="#ff6b6b"></a-box>
         </a-entity>
         
         <!-- Subtitle Panel -->
