@@ -28,10 +28,14 @@ const RECOMMENDED = [
   'STRIPE_WEBHOOK_SECRET',
   'NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY',
   'NEXT_PUBLIC_STRIPE_PRICE_PRO_ANNUAL',
+  'NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY',
+  'NEXT_PUBLIC_STRIPE_PRICE_PRO_ANNUAL',
 ];
-const URGENT = [
-  'Discord bot token in .env — ROTATE IMMEDIATELY at https://discord.com/developers/applications',
-];
+
+// Supabase anon key must be a real JWT (starts with "eyJ"), not a placeholder
+function isRealSupabaseKey(key) {
+  return key && key.startsWith('eyJ') && key.includes('.');
+}
 
 const missing = REQUIRED.filter(k => !process.env[k]);
 if (missing.length) {
@@ -41,18 +45,33 @@ if (missing.length) {
   process.exit(1);
 }
 
-const notSet = RECOMMENDED.filter(k => !process.env[k] || process.env[k].includes('placeholder'));
+const notSet = RECOMMENDED.filter(k => {
+  const val = process.env[k];
+  return !val || val.includes('placeholder') || val.includes('your_') || val.includes('here');
+});
+// Extra check: flag Supabase anon key if it looks like a placeholder (doesn't start with "eyJ")
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+if (!isRealSupabaseKey(supabaseAnonKey)) {
+  notSet.push('NEXT_PUBLIC_SUPABASE_ANON_KEY (looks like a placeholder — must be a real Supabase JWT)');
+}
 if (notSet.length) {
   console.warn('\n[STARTUP] Recommended env vars not set or still contain placeholder values:');
   notSet.forEach(k => console.warn(`  ○ ${k}`));
   console.warn('  The corresponding features will be unavailable until filled in.\n');
 }
 
-if (process.env.DISCORD_BOT_TOKEN) {
-  console.warn('\n[STARTUP] ⚠️  URGENT: Discord bot token is present in .env.');
-  console.warn('  This token has likely been synced to OneDrive/SharePoint and is exposed.');
-  console.warn('  Rotate it immediately at: https://discord.com/developers/applications');
-  console.warn('  Then update .env with the new token.\n');
+// Discord bot token exposure check
+const DISCORD_TOKEN_PATTERNS = [
+  process.env.DISCORD_BOT_TOKEN,
+  process.env.DISCORD_TOKEN,
+].filter(Boolean);
+for (const token of DISCORD_TOKEN_PATTERNS) {
+  if (token && token.length > 50) {
+    console.warn('\n[STARTUP] ⚠️  URGENT: Discord bot token is present in .env.');
+    console.warn('  This token has likely been synced to OneDrive/SharePoint and is exposed.');
+    console.warn('  Rotate it immediately at: https://discord.com/developers/applications');
+    console.warn('  Then update .env with the new token.\n');
+  }
 }
 
 console.log('[STARTUP] ✓ Required env vars present\n');
@@ -85,7 +104,7 @@ const limiter = rateLimit({
   message: { error: 'Too many requests, please try again later.' }
 });
 
-// --- Helper: Call OpenRouter GPT-4o-mini ---
+// --- Helper: Call OpenRouter GPT-4o-mini with retry ---
 const SYSTEM_PROMPT = `Jesteś przyjaznym polskim nauczycielem języka. Pomagasz użytkownikom ćwiczyć rozmowną polszczyznę.
 Utrzymuj odpowiedzi KRÓTKIE (1-3 zdania maksymalnie) i po polsku.
 Używaj prostego słownictwa odpowiedniego dla początkujących.
@@ -111,64 +130,110 @@ async function callOpenRouter(messages, lessonContext) {
     ...messages
   ];
 
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': 'http://localhost:5000',
-      'X-Title': 'uLern-Polish'
-    },
-    body: JSON.stringify({
-      model: 'openai/gpt-4o-mini',
-      messages: fullMessages,
-      max_tokens: 150,
-      temperature: 0.7
-    })
-  });
+  const maxRetries = 2;
+  let lastError;
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`OpenRouter error ${response.status}: ${error}`);
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'http://localhost:5000',
+          'X-Title': 'uLern-Polish'
+        },
+        body: JSON.stringify({
+          model: 'openai/gpt-4o-mini',
+          messages: fullMessages,
+          max_tokens: 150,
+          temperature: 0.7
+        }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`OpenRouter error ${response.status}: ${error}`);
+      }
+
+      const data = await response.json();
+      return data.choices[0].message.content;
+    } catch (err) {
+      lastError = err;
+      if (err.name === 'AbortError') {
+        lastError = new Error('OpenRouter request timed out after 30s');
+      }
+      if (attempt < maxRetries) {
+        await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+      }
+    }
   }
 
-  const data = await response.json();
-  return data.choices[0].message.content;
+  throw lastError;
 }
 
-// --- Helper: Call ElevenLabs TTS ---
+// --- Helper: Call ElevenLabs TTS with retry ---
 async function callElevenLabs(text) {
   const apiKey = process.env.ELEVENLABS_API_KEY;
   const voiceId = process.env.ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM';
-  
+
   if (!apiKey) throw new Error('ELEVENLABS_API_KEY not configured');
 
-  const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
-    method: 'POST',
-    headers: {
-      'Accept': 'audio/mpeg',
-      'Content-Type': 'application/json',
-      'xi-api-key': apiKey
-    },
-    body: JSON.stringify({
-      text: text,
-      model_id: 'eleven_multilingual_v2',
-      voice_settings: {
-        stability: 0.5,
-        similarity_boost: 0.75,
-        style: 0.0,
-        use_speaker_boost: true
-      }
-    })
-  });
+  const maxRetries = 2;
+  let lastError;
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`ElevenLabs error ${response.status}: ${error}`);
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
+      const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'audio/mpeg',
+          'Content-Type': 'application/json',
+          'xi-api-key': apiKey
+        },
+        body: JSON.stringify({
+          text: text,
+          model_id: 'eleven_multilingual_v2',
+          voice_settings: {
+            stability: 0.5,
+            similarity_boost: 0.75,
+            style: 0.0,
+            use_speaker_boost: true
+          }
+        }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`ElevenLabs error ${response.status}: ${error}`);
+      }
+
+      const buffer = await response.arrayBuffer();
+      return Buffer.from(buffer);
+    } catch (err) {
+      lastError = err;
+      if (err.name === 'AbortError') {
+        lastError = new Error('ElevenLabs request timed out after 30s');
+      }
+      if (attempt < maxRetries) {
+        await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+      }
+    }
   }
 
-  const buffer = await response.arrayBuffer();
-  return Buffer.from(buffer);
+  throw lastError;
 }
 
 // --- API Routes (MUST be before static middleware) ---
@@ -192,6 +257,22 @@ app.post('/api/chat', limiter, async (req, res) => {
     if (!messages || !Array.isArray(messages)) {
       return res.status(400).json({ error: 'messages array required' });
     }
+    if (messages.length === 0) {
+      return res.status(400).json({ error: 'messages array cannot be empty' });
+    }
+    // Validate each message has required fields
+    for (const msg of messages) {
+      if (!msg.role || typeof msg.content !== 'string') {
+        return res.status(400).json({ error: 'Each message must have role and content fields' });
+      }
+      if (!['system', 'user', 'assistant'].includes(msg.role)) {
+        return res.status(400).json({ error: `Invalid message role: ${msg.role}` });
+      }
+    }
+    // Validate lessonContext if provided
+    if (lessonContext && typeof lessonContext !== 'object') {
+      return res.status(400).json({ error: 'lessonContext must be an object' });
+    }
 
     const reply = await callOpenRouter(messages, lessonContext);
     res.json({ reply });
@@ -208,6 +289,12 @@ app.post('/api/tts', limiter, async (req, res) => {
     if (!text) {
       return res.status(400).json({ error: 'text required' });
     }
+    if (typeof text !== 'string') {
+      return res.status(400).json({ error: 'text must be a string' });
+    }
+    if (text.length > 5000) {
+      return res.status(400).json({ error: 'text must be 5000 characters or fewer' });
+    }
 
     const audioBuffer = await callElevenLabs(text);
     res.set('Content-Type', 'audio/mpeg');
@@ -221,20 +308,20 @@ app.post('/api/tts', limiter, async (req, res) => {
 // STT endpoint — RunPod Whisper
 app.post('/api/stt', limiter, async (req, res) => {
   try {
-    const { audioUrl } = req.body; // base64 encoded audio
+    const { audioUrl } = req.body; // base64 encoded audio or URL
     const apiKey = process.env.RUNPOD_WHISPER_API_KEY;
     const endpointUrl = process.env.RUNPOD_WHISPER_API_URL;
 
-    if (!endpointUrl) {
-      // TODO: Once RUNPOD_WHISPER_API_URL is configured, uncomment the line below
-      // and remove this fallback response
+    if (!endpointUrl || endpointUrl.includes('your-')) {
       return res.status(503).json({ error: 'RUNPOD_WHISPER_API_URL not configured. Whisper STT deployment pending.' });
-      // In production, remove the return above and use:
-      // throw new Error('RUNPOD_WHISPER_API_URL not configured');
     }
 
-    if (!apiKey) {
+    if (!apiKey || apiKey.includes('your_') || apiKey.includes('placeholder')) {
       return res.status(503).json({ error: 'RUNPOD_WHISPER_API_KEY not configured. Whisper STT deployment pending.' });
+    }
+
+    if (!audioUrl) {
+      return res.status(400).json({ error: 'audioUrl (base64 audio) is required' });
     }
 
     // Call RunPod Whisper endpoint

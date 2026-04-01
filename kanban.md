@@ -67,10 +67,18 @@
 
 ---
 
-## ⚠️ Blocker
+## ⚠️ Blockers — What Andrzej Needs to Do
 
-**Supabase credentials needed** — `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` must be added to `.env` before auth works.
+| # | Credential | Status | Action Required |
+|---|-----------|--------|----------------|
+| 1 | Supabase | ⚠️ URL set, anon key is a **placeholder** | Replace `sb_publishable_...` with real JWT anon key from Supabase dashboard. Create `profiles` table. |
+| 2 | RunPod Whisper | ❌ All missing | Deploy Whisper on RunPod, fill API key + endpoint URL |
+| 3 | ComfyUI API key | ⚠️ URL set, key missing | Add `RUNPOD_COMFY_API_KEY` to `.env` |
+| 4 | Stripe Price IDs | ❌ Placeholders | Create products in Stripe dashboard, add Price IDs |
+| 5 | Discord bot token | 🚨 Rotate if ever real | Check if real token was in `.env`, rotate at discord.com/developers |
+
+See `CREDENTIALS_SETUP.md` for step-by-step instructions.
 
 ---
 
-_Last updated: 2026-03-31_
+_Last updated: 2026-04-01_
