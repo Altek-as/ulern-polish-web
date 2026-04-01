@@ -7,9 +7,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": process.env.VERCEL_ENV === "production" 
-        ? "https://YOUR_RUNPOD_ENDPOINT-5000.proxy.runpod.net/api/:path*" 
-        : "http://localhost:5000/api/:path*"
+      "destination": "https://YOUR_RUNPOD_ENDPOINT-5000.proxy.runpod.net/api/:path*"
     }
   ],
   "headers": [
