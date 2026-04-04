@@ -7,7 +7,6 @@ WORKDIR /app
 
 # Install dependencies first (layer cache optimization)
 COPY package*.json ./
-
 RUN npm ci --omit=dev --legacy-peer-deps
 
 # Copy source (server.js only — no local lib deps)
