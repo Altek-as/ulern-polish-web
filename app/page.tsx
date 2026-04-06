@@ -53,7 +53,7 @@ export default function Home() {
               Wypróbuj ćwiczenia
             </Link>
             <a
-              href="http://localhost:5000"
+              href={process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000"}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center bg-purple-600 text-white px-8 py-3 rounded-lg font-semibold text-lg hover:bg-purple-700 transition-colors shadow-lg"

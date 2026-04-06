@@ -304,7 +304,7 @@ export default function VocabularyPage() {
       <div className="mt-10 text-center">
         <p className="text-gray-600 mb-4">Chcesz poćwiczyć w VR?</p>
         <a
-          href="http://localhost:5000"
+          href={process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000"}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors"
